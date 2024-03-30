@@ -90,10 +90,22 @@ class EncoderSensor:
             self.runout_helper.note_filament_present(True)
 
     def get_sensor_status(self):
-        return "Filament Sensor %s: %s\n" "Detection Length: %.2f" % (
-            self.runout_helper.name,
-            "enabled" if self.runout_helper.sensor_enabled > 0 else "disabled",
-            self.detection_length,
+        return (
+            "Filament Sensor %s: %s\n"
+            "Filament Detected: %s\n"
+            "Detection Length: %.2f\n"
+            "Smart: %s"
+            % (
+                self.runout_helper.name,
+                (
+                    "enabled"
+                    if self.runout_helper.sensor_enabled > 0
+                    else "disabled"
+                ),
+                "true" if self.runout_helper.filament_present else "false",
+                self.detection_length,
+                "true" if self.runout_helper.smart else "false",
+            )
         )
 
     def sensor_get_status(self, eventtime):
@@ -112,13 +124,13 @@ class EncoderSensor:
         return False
 
     def set_filament_sensor(self, gcmd):
-        reset = False
+        reset_needed = False
         detection_length = gcmd.get_float("DETECTION_LENGTH", None, minval=0.0)
         if detection_length is not None:
             if detection_length != self.detection_length:
-                reset = True
+                reset_needed = True
             self.detection_length = detection_length
-        return reset
+        return reset_needed
 
     def reset(self):
         self._update_filament_runout_pos()
