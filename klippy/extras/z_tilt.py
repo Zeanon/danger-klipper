@@ -117,6 +117,9 @@ class RetryHelper:
             minval=0.0,
             maxval=1.0,
         )
+        self.ignore_increasing = gcmd.get_int(
+            "IGNORE_INCREASING", 0, minval=0, maxval=1
+        )
         self.current_retry = 0
         self.previous = None
         self.increasing = 0
@@ -143,7 +146,7 @@ class RetryHelper:
                 self.retry_tolerance,
             )
         )
-        if self.check_increase(error):
+        if not self.ignore_increasing and self.check_increase(error):
             raise self.gcode.error(
                 "Retries aborting: %s is increasing. %s"
                 % (self.value_label, self.error_msg_extra)
@@ -187,6 +190,7 @@ class ZTilt:
         z_offset = offsets[2]
         logging.info("Calculating bed tilt with: %s", positions)
         params = {"x_adjust": 0.0, "y_adjust": 0.0, "z_adjust": z_offset}
+
         # Perform coordinate descent
         def adjusted_height(pos, params):
             x, y, z = pos
