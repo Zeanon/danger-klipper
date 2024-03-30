@@ -103,20 +103,20 @@ class EncoderSensor:
         detection_length = gcmd.get_float("DETECTION_LENGTH", None, minval=0.0)
         if detection_length is None:
             gcmd.respond_info(self.get_sensor_status())
-            return 1
-        return 0
+            return True
+        return False
 
-    def enable(self, enable):
+    def reset_needed(self, enable):
         if enable and not self.runout_helper.sensor_enabled:
-            return 1
-        return 0
+            return True
+        return False
 
     def set_filament_sensor(self, gcmd):
-        reset = 0
+        reset = False
         detection_length = gcmd.get_float("DETECTION_LENGTH", None, minval=0.0)
         if detection_length is not None:
             if detection_length != self.detection_length:
-                reset = 1
+                reset = True
             self.detection_length = detection_length
         return reset
 

@@ -6,6 +6,9 @@
 import logging
 
 
+CHECK_RUNOUT_TIMEOUT = 0.250
+
+
 class RunoutHelper:
     def __init__(self, config, defined_sensor, runout_distance=0):
         self.name = config.get_name().split()[-1]
@@ -189,6 +192,7 @@ class RunoutHelper:
         enable = gcmd.get_int("ENABLE", None, minval=0, maxval=1)
         reset = gcmd.get_int("RESET", None, minval=0, maxval=1)
         smart = gcmd.get_int("SMART", None, minval=0, maxval=1)
+        reset_needed = False
         if (
             enable is None
             and reset is None
@@ -197,14 +201,16 @@ class RunoutHelper:
         ):
             return
         if enable is not None:
-            if self.defined_sensor.enable(enable):
-                reset = 1
+            if self.defined_sensor.reset_needed(enable):
+                reset_needed = True
             self.sensor_enabled = enable
+        if reset is not None and reset:
+            reset_needed = True
         if smart is not None:
             self.smart = smart
         if self.defined_sensor.set_filament_sensor(gcmd):
-            reset = 1
-        if reset is not None and reset:
+            reset_needed = True
+        if reset_needed:
             self.defined_sensor.reset()
 
 
@@ -258,19 +264,19 @@ class SwitchSensor:
         runout_distance = gcmd.get_float("RUNOUT_DISTANCE", None, minval=0.0)
         if runout_distance is None:
             gcmd.respond_info(self.get_sensor_status())
-            return 1
-        return 0
+            return True
+        return False
 
-    def enable(self, enable):
+    def reset_needed(self, enable):
         if enable != self.runout_helper.sensor_enabled:
-            return 1
-        return 0
+            return True
+        return False
 
     def set_filament_sensor(self, gcmd):
         runout_distance = gcmd.get_float("RUNOUT_DISTANCE", None, minval=0.0)
         if runout_distance is not None:
             self.runout_helper.runout_distance = runout_distance
-        return 0
+        return False
 
     def reset(self):
         self.runout_helper.reset_runout_distance_info()
