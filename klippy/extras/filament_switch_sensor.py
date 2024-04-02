@@ -44,7 +44,6 @@ class RunoutHelper:
         self.runout_position = 0.0
         self.runout_elapsed = 0.0
         self.runout_distance_timer = None
-        self.force_trigger = False
         # Register commands and event handlers
         self.printer.register_event_handler("klippy:ready", self._handle_ready)
         # self.printer.register_event_handler(
