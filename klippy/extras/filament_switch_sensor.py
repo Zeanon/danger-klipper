@@ -47,9 +47,9 @@ class RunoutHelper:
         self.force_trigger = False
         # Register commands and event handlers
         self.printer.register_event_handler("klippy:ready", self._handle_ready)
-        self.printer.register_event_handler(
-            "idle_timeout:printing", self._handle_printing
-        )
+        # self.printer.register_event_handler(
+        #     "idle_timeout:printing", self._handle_printing
+        # )
         self.gcode.register_mux_command(
             "QUERY_FILAMENT_SENSOR",
             "SENSOR",
