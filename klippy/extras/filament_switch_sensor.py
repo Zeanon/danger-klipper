@@ -40,6 +40,7 @@ class RunoutHelper:
         self.filament_present = False
         self.sensor_enabled = True
         self.smart = config.getboolean("smart", False)
+        self.always_fire_events = config.getboolean("always_fire_events", False)
         self.runout_position = 0.0
         self.runout_elapsed = 0.0
         self.runout_distance_timer = None
@@ -130,7 +131,9 @@ class RunoutHelper:
             return
         self.filament_present = is_filament_present
         eventtime = self.reactor.monotonic()
-        if eventtime < self.min_event_systime:
+        if eventtime < self.min_event_systime or (
+            not self.always_fire_events and not self.sensor_enabled
+        ):
             # do not process during the initialization time, duplicates,
             # during the event delay time, while an event is running, or
             # when the sensor is disabled
