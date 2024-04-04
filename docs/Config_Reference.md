@@ -254,6 +254,12 @@ position_max:
 #second_homing_speed:
 #   Velocity (in mm/s) of the stepper when performing the second home.
 #   The default is homing_speed/2.
+#post_homing_retract_dist:
+#   Distance to back off after successfully homing, the default is
+#   homing_retract_dist.
+#post_homing_retract_speed:
+#   Velocity (in mm/s) of the stepper when retracting after successfully
+#   homing, the default is homing_retract_speed
 #homing_positive_dir:
 #   If true, homing will cause the stepper to move in a positive
 #   direction (away from zero); if false, home towards zero. It is
