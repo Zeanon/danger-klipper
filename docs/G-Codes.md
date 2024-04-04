@@ -284,7 +284,7 @@ The configfile module is automatically loaded.
 file and restart the host software. This command is used in
 conjunction with other calibration commands to store the results of
 calibration tests.
-If RESTART is set to 0, no restart will be performed.
+If RESTART is set to 0, no restart will be performed !!USE WITH CAUTION!!.
 
 ### [delayed_gcode]
 
