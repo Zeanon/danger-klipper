@@ -449,9 +449,11 @@ class PrinterRail:
             "homing_retract_dist", 5.0, minval=0.0
         )
         self.post_homing_retract_speed = config.getfloat(
-            'post_homing_retract_speed', self.homing_retract_speed, above=0.)
+            "post_homing_retract_speed", self.homing_retract_speed, above=0.0
+        )
         self.post_homing_retract_dist = config.getfloat(
-            'post_homing_retract_dist', self.homing_retract_dist, minval=0.)
+            "post_homing_retract_dist", self.homing_retract_dist, minval=0.0
+        )
         self.homing_positive_dir = config.getboolean(
             "homing_positive_dir", None
         )
@@ -504,8 +506,8 @@ class PrinterRail:
                 "position_endstop",
                 "retract_speed",
                 "retract_dist",
-                'post_retract_speed',
-                'post_retract_dist',
+                "post_retract_speed",
+                "post_retract_dist",
                 "positive_dir",
                 "second_homing_speed",
                 "use_sensorless_homing",

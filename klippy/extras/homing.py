@@ -369,9 +369,10 @@ class Homing:
                     homepos = self._fill_coord(movepos)
                     axes_d = [hp - sp for hp, sp in zip(homepos, startpos)]
                     move_d = math.sqrt(sum([d * d for d in axes_d[:3]]))
-                    retract_r = min(1., hi.post_retract_dist / move_d)
-                    retractpos = [hp - ad * retract_r
-                                  for hp, ad in zip(homepos, axes_d)]
+                    retract_r = min(1.0, hi.post_retract_dist / move_d)
+                    retractpos = [
+                        hp - ad * retract_r for hp, ad in zip(homepos, axes_d)
+                    ]
                     self.toolhead.move(retractpos, hi.post_retract_speed)
         self._set_current_post_homing(homing_axes)
         # Signal home operation complete
