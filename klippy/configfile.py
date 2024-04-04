@@ -686,10 +686,10 @@ class PrinterConfig:
         self._write_backup(cfgname, data, gcode)
 
         # If requested restart or no restart just flag config saved
-        require_restart = gcmd.get_int('RESTART', 1, minval=0, maxval=1)
+        require_restart = gcmd.get_int("RESTART", 1, minval=0, maxval=1)
         if require_restart:
             # Request a restart
-            gcode.request_restart('restart')
+            gcode.request_restart("restart")
         else:
             # flag config updated to false since config saved with no restart
             self.save_config_pending = False
