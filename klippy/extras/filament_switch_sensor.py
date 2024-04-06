@@ -4,7 +4,6 @@
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
 import logging
-from . import filament_motion_sensor
 
 CHECK_RUNOUT_TIMEOUT = 0.250
 
