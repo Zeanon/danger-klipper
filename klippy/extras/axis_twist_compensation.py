@@ -18,6 +18,7 @@ class AxisTwistCompensation:
         # get printer
         self.printer = config.get_printer()
         self.gcode = self.printer.lookup_object("gcode")
+        gcode_macro = self.printer.load_object(config, 'gcode_macro')
 
         # get values from [axis_twist_compensation] section in printer .cfg
         self.horizontal_move_z = config.getfloat(
@@ -27,6 +28,15 @@ class AxisTwistCompensation:
         self.calibrate_start_x = config.getfloat("calibrate_start_x")
         self.calibrate_end_x = config.getfloat("calibrate_end_x")
         self.calibrate_y = config.getfloat("calibrate_y")
+        self.wait_for_continue = config.getboolean('wait_for_continue', True)
+        self.start_gcode = gcode_macro.load_template(config, 'start_gcode', '')
+        self.end_gcode = gcode_macro.load_template(config, 'end_gcode', '')
+        self.abort_gcode = (
+            self.end_gcode
+            if config.get('abort_gcode', None) is None
+            else gcode_macro.load_template(config, 'abort_gcode', '')
+        )
+
         self.z_compensations = config.getlists(
             "z_compensations", default=[], parser=float
         )
@@ -89,6 +99,10 @@ class Calibrater:
         )
         self.speed = compensation.speed
         self.horizontal_move_z = compensation.horizontal_move_z
+        self.start_gcode = compensation.start_gcode
+        self.end_gcode = compensation.end_gcode
+        self.abort_gcode = compensation.abort_gcode
+        self.wait_for_continue = compensation.wait_for_continue
         self.start_point = (
             compensation.calibrate_start_x,
             compensation.calibrate_y,
@@ -100,6 +114,11 @@ class Calibrater:
         self.results = None
         self.current_point_index = None
         self.gcmd = None
+
+        self.nozzle_points = None
+        self.probe_points = None
+        self.interval = None
+
         self.configname = config.get_name()
 
         # register gcode handlers
@@ -131,6 +150,16 @@ class Calibrater:
     """
 
     def cmd_AXIS_TWIST_COMPENSATION_CALIBRATE(self, gcmd):
+        verify_no_compensation(self.printer)
+        self.gcode.register_command('ABORT',
+                                    self.cmd_ABORT,
+                                    desc=self.cmd_ABORT_help)
+        self.gcode.register_command('QUERY_TWIST_COMPENSATION_RUNNING',
+                                    self.cmd_QUERY_TWIST_COMPENSATION_RUNNING,
+                                    desc=self
+                                    .cmd_QUERY_TWIST_COMPENSATION_RUNNING_help)
+        self.start_gcode.run_gcode_from_command()
+
         self.gcmd = gcmd
         sample_count = gcmd.get_int("SAMPLE_COUNT", DEFAULT_SAMPLE_COUNT)
 
@@ -144,11 +173,11 @@ class Calibrater:
         # calculate some values
         x_range = self.end_point[0] - self.start_point[0]
         interval_dist = x_range / (sample_count - 1)
-        nozzle_points = self._calculate_nozzle_points(
+        self.nozzle_points = self._calculate_nozzle_points(
             sample_count, interval_dist
         )
-        probe_points = self._calculate_probe_points(
-            nozzle_points, self.probe_x_offset, self.probe_y_offset
+        self.probe_points = self._calculate_probe_points(
+            self.nozzle_points, self.probe_x_offset, self.probe_y_offset
         )
 
         # verify no other manual probe is in progress
@@ -157,7 +186,7 @@ class Calibrater:
         # begin calibration
         self.current_point_index = 0
         self.results = []
-        self._calibration(probe_points, nozzle_points, interval_dist)
+        self._calibration(self.probe_points, self.nozzle_points, interval_dist)
 
     def _calculate_nozzle_points(self, sample_count, interval_dist):
         # calculate the points to put the probe at, returned as a list of tuples
@@ -239,10 +268,7 @@ class Calibrater:
         def callback(kin_pos):
             if kin_pos is None:
                 # probe was cancelled
-                self.gcmd.respond_info(
-                    "AXIS_TWIST_COMPENSATION_CALIBRATE: Probe cancelled, "
-                    "calibration aborted"
-                )
+                self.cmd_ABORT()
                 return
             z_offset = self.current_measured_z - kin_pos[2]
             self.results.append(z_offset)
@@ -252,9 +278,60 @@ class Calibrater:
             else:
                 # move to next point
                 self.current_point_index += 1
-                self._calibration(probe_points, nozzle_points, interval)
+
+                self.probe_points = probe_points
+                self.nozzle_points = nozzle_points
+                self.interval = interval
+
+                self.gcode.register_command('ABORT',
+                                            self.cmd_ABORT,
+                                            desc=self.cmd_ABORT_help)
+
+                if self.wait_for_continue:
+                    self._move_helper((None, None, self.horizontal_move_z))
+
+                    self.gcode.register_command(
+                        'CONTINUE',
+                        self.cmd_CONTINUE,
+                        desc=self.cmd_CONTINUE_help)
+
+                    self.gcmd.respond_info(
+                        "Type CONTINUE to continue to the next probing point"
+                    )
+                else:
+                    self._calibration(self.probe_points, self.nozzle_points,
+                                      self.interval)
 
         return callback
+
+
+    cmd_CONTINUE_help = "Continue to the next probing point"
+
+    def cmd_CONTINUE(self, gcmd):
+        self.gcode.register_command('CONTINUE',
+                                    None)
+        self._calibration(self.probe_points, self.nozzle_points, self.interval)
+
+    cmd_QUERY_TWIST_COMPENSATION_RUNNING_help = """Query if we are running a
+                                                   twist compensation"""
+
+    def cmd_QUERY_TWIST_COMPENSATION_RUNNING(self, gcmd):
+        gcmd.respond_info("Twist Compensation running")
+        return
+
+    cmd_ABORT_help = "Abort the running probe calibration"
+
+    def cmd_ABORT(self, gcmd=None):
+        self.gcmd.respond_info(
+            "AXIS_TWIST_COMPENSATION_CALIBRATE: Probe cancelled, "
+            "calibration aborted")
+        self.abort_gcode.run_gcode_from_command()
+        self.gcode.register_command('QUERY_TWIST_COMPENSATION_RUNNING',
+                                    None)
+        self.gcode.register_command('ABORT',
+                                    None)
+        self.gcode.register_command('CONTINUE',
+                                    None)
 
     def _finalize_calibration(self):
         # finalize the calibration process
@@ -274,17 +351,40 @@ class Calibrater:
         self.compensation.z_compensations = self.results
         self.compensation.compensation_start_x = self.start_point[0]
         self.compensation.compensation_end_x = self.end_point[0]
-        self.gcode.respond_info(
-            "AXIS_TWIST_COMPENSATION state has been saved "
-            "for the current session.  The SAVE_CONFIG command will "
-            "update the printer config file and restart the printer."
-        )
+
+        self.nozzle_points = None
+        self.probe_points = None
+        self.interval = None
+
+        self.gcode.register_command('ABORT',
+                                    None)
+        self.gcode.register_command('CONTINUE',
+                                    None)
+
         # output result
         self.gcmd.respond_info(
             "AXIS_TWIST_COMPENSATION_CALIBRATE: Calibration complete, "
             "offsets: %s, mean z_offset: %f" % (self.results, avg)
         )
+        self.gcode.respond_info(
+            "AXIS_TWIST_COMPENSATION state has been saved "
+            "for the current session.  The SAVE_CONFIG command will "
+            "update the printer config file and restart the printer."
+        )
+        self.end_gcode.run_gcode_from_command()
+        self.gcode.register_command('QUERY_TWIST_COMPENSATION_RUNNING',
+                                    None)
 
+
+def verify_no_compensation(printer):
+    gcode = printer.lookup_object('gcode')
+    try:
+        gcode.register_command('QUERY_TWIST_COMPENSATION_RUNNING', 'dummy')
+        gcode.register_command('QUERY_TWIST_COMPENSATION_RUNNING', None)
+    except printer.config_error as e:
+        raise gcode.error(
+            "Already running a twist compensation calibration. Use ABORT"
+            " to abort it.")
 
 # klipper's entry point using [axis_twist_compensation] section in printer.cfg
 def load_config(config):
