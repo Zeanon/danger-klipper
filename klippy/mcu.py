@@ -829,6 +829,22 @@ class MCU:
                             "max_temp": heater.max_temp,
                         }
                     )
+            sensor_names = [
+                sensor
+                for sensor in self._printer.objects
+                if sensor.startswith("temperature_sensor")
+            ]
+            for sensor_name in sensor_names:
+                sensor = self._printer.lookup_object(sensor_name)
+                if sensor.is_adc_faulty():
+                    append_msgs.append(
+                        {
+                            "sensor": sensor.name,
+                            "last_temp": "{:.2f}".format(sensor.last_temp),
+                            "min_temp": sensor.min_temp,
+                            "max_temp": sensor.max_temp,
+                        }
+                    )
 
         self._printer.invoke_async_shutdown(
             prefix + msg + error_help(msg=msg, append_msgs=append_msgs)
