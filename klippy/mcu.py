@@ -813,8 +813,8 @@ class MCU:
         append_msgs = []
         if (
             msg.startswith("ADC out of range")
-            and not get_danger_options.adc_ignore_limits
-        ):
+            or msg.startswith("Thermocouple reader fault")
+        ) and not get_danger_options.adc_ignore_limits:
             pheaters = self._printer.lookup_object("heaters")
             heaters = [
                 pheaters.lookup_heater(n) for n in pheaters.available_heaters
@@ -1351,6 +1351,7 @@ This is generally indicative of an intermittent
 communication failure between micro-controller and host.""",
     (
         "ADC out of range",
+        "Thermocouple reader fault",
     ): """
 This generally occurs when a heater temperature exceeds
 its configured min_temp or max_temp.""",
