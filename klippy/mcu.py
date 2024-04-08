@@ -832,33 +832,24 @@ class MCU:
             sensor_names = [
                 sensor
                 for sensor in self._printer.objects
-                if sensor.startswith("temperature_sensor")
+                if (
+                    sensor.startswith("temperature_sensor")
+                    or sensor.startswith("temperature_fan")
+                )
             ]
             for sensor_name in sensor_names:
                 sensor = self._printer.lookup_object(sensor_name)
                 if sensor.is_adc_faulty():
                     append_msgs.append(
                         {
-                            "sensor": sensor.name,
+                            (
+                                "sensor"
+                                if sensor_name.starts_with("temperature_sensor")
+                                else "fan"
+                            ): sensor.name,
                             "last_temp": "{:.2f}".format(sensor.last_temp),
                             "min_temp": sensor.min_temp,
                             "max_temp": sensor.max_temp,
-                        }
-                    )
-            fan_names = [
-                fan
-                for fan in self._printer.objects
-                if fan.startswith("temperature_fan")
-            ]
-            for fan_name in fan_names:
-                fan = self._printer.lookup_object(fan_name)
-                if fan.is_adc_faulty():
-                    append_msgs.append(
-                        {
-                            "fan": fan.name,
-                            "last_temp": "{:.2f}".format(fan.last_temp),
-                            "min_temp": fan.min_temp,
-                            "max_temp": fan.max_temp,
                         }
                     )
 
