@@ -842,11 +842,7 @@ class MCU:
                 if sensor.is_adc_faulty():
                     append_msgs.append(
                         {
-                            (
-                                "sensor"
-                                if sensor_name.starts_with("temperature_sensor")
-                                else "fan"
-                            ): sensor.name,
+                            sensor_name.split(" ")[0]: sensor.name,
                             "last_temp": "{:.2f}".format(sensor.last_temp),
                             "min_temp": sensor.min_temp,
                             "max_temp": sensor.max_temp,
