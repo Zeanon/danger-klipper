@@ -32,7 +32,9 @@ PID_PROFILE_OPTIONS = {
 class Heater:
     def __init__(self, config, sensor):
         self.printer = config.get_printer()
-        self.name = config.get_name().split()[-1]
+        self.name = config.get_name()
+        self.short_name = short_name = self.name.split()[-1]
+        self.reactor = self.printer.get_reactor()
         self.config = config
         self.configfile = self.printer.lookup_object("configfile")
         # Setup sensor
@@ -59,6 +61,7 @@ class Heater:
         self.config_smooth_time = config.getfloat("smooth_time", 1.0, above=0.0)
         self.smooth_time = self.config_smooth_time
         self.inv_smooth_time = 1.0 / self.smooth_time
+        self.is_shutdown = False
         self.lock = threading.Lock()
         self.last_temp = self.smoothed_temp = self.target_temp = 0.0
         self.last_temp_time = 0.0
@@ -81,7 +84,7 @@ class Heater:
         self.mcu_pwm.setup_cycle_time(pwm_cycle_time)
         self.mcu_pwm.setup_max_duration(MAX_HEAT_TIME)
         # Load additional modules
-        self.printer.load_object(config, "verify_heater %s" % (self.name,))
+        self.printer.load_object(config, "verify_heater %s" % (short_name,))
         self.printer.load_object(config, "pid_calibrate")
         self.gcode = self.printer.lookup_object("gcode")
         self.pmgr = self.ProfileManager(self)
@@ -91,30 +94,34 @@ class Heater:
         self.gcode.register_mux_command(
             "SET_HEATER_TEMPERATURE",
             "HEATER",
-            self.name,
+            short_name,
             self.cmd_SET_HEATER_TEMPERATURE,
             desc=self.cmd_SET_HEATER_TEMPERATURE_help,
         )
         self.gcode.register_mux_command(
             "SET_SMOOTH_TIME",
             "HEATER",
-            self.name,
+            short_name,
             self.cmd_SET_SMOOTH_TIME,
             desc=self.cmd_SET_SMOOTH_TIME_help,
         )
         self.gcode.register_mux_command(
             "PID_PROFILE",
             "HEATER",
-            self.name,
+            short_name,
             self.pmgr.cmd_PID_PROFILE,
             desc=self.pmgr.cmd_PID_PROFILE_help,
         )
         self.gcode.register_mux_command(
             "SET_HEATER_PID",
             "HEATER",
-            self.name,
+            short_name,
             self.cmd_SET_HEATER_PID,
             desc=self.cmd_SET_HEATER_PID_help,
+        )
+
+        self.printer.register_event_handler(
+            "klippy:shutdown", self._handle_shutdown
         )
 
     def lookup_control(self, profile, load_clean=False):
@@ -128,7 +135,7 @@ class Heater:
         return algos[profile["control"]](profile, self, load_clean)
 
     def set_pwm(self, read_time, value):
-        if self.target_temp <= 0.0:
+        if self.target_temp <= 0.0 or self.is_shutdown:
             value = 0.0
         if (read_time < self.next_pwm_time or not self.last_pwm_value) and abs(
             value - self.last_pwm_value
@@ -155,7 +162,13 @@ class Heater:
             self.can_extrude = self.smoothed_temp >= self.min_extrude_temp
         # logging.debug("temp: %.3f %f = %f", read_time, temp)
 
+    def _handle_shutdown(self):
+        self.is_shutdown = True
+
     # External commands
+    def get_name(self):
+        return self.name
+
     def get_pwm_delay(self):
         return self.pwm_delay
 
@@ -215,7 +228,7 @@ class Heater:
             last_pwm_value = self.last_pwm_value
         is_active = target_temp or last_temp > 50.0
         return is_active, "%s: target=%.0f temp=%.1f pwm=%.3f" % (
-            self.name,
+            self.short_name,
             target_temp,
             last_temp,
             last_pwm_value,
@@ -830,14 +843,14 @@ class PrinterHeaters:
             "gcode:request_restart", self.turn_off_all_heaters
         )
         # Register commands
-        gcode = self.printer.lookup_object("gcode")
-        gcode.register_command(
+        self.gcode = self.printer.lookup_object("gcode")
+        self.gcode.register_command(
             "TURN_OFF_HEATERS",
             self.cmd_TURN_OFF_HEATERS,
             desc=self.cmd_TURN_OFF_HEATERS_help,
         )
-        gcode.register_command("M105", self.cmd_M105, when_not_ready=True)
-        gcode.register_command(
+        self.gcode.register_command("M105", self.cmd_M105, when_not_ready=True)
+        self.gcode.register_command(
             "TEMPERATURE_WAIT",
             self.cmd_TEMPERATURE_WAIT,
             desc=self.cmd_TEMPERATURE_WAIT_help,
@@ -947,16 +960,15 @@ class PrinterHeaters:
 
     def _wait_for_temperature(self, heater):
         # Helper to wait on heater.check_busy() and report M105 temperatures
+
         if self.printer.get_start_args().get("debugoutput") is not None:
             return
-        toolhead = self.printer.lookup_object("toolhead")
-        gcode = self.printer.lookup_object("gcode")
-        reactor = self.printer.get_reactor()
-        eventtime = reactor.monotonic()
-        while not self.printer.is_shutdown() and heater.check_busy(eventtime):
-            print_time = toolhead.get_last_move_time()
-            gcode.respond_raw(self._get_temp(eventtime))
-            eventtime = reactor.pause(eventtime + 1.0)
+
+        def check(eventtime):
+            self.gcode.respond_raw(self._get_temp(eventtime))
+            return heater.check_busy(eventtime)
+
+        self.printer.wait_while(check)
 
     def set_temperature(self, heater, temp, wait=False):
         toolhead = self.printer.lookup_object("toolhead")
@@ -983,16 +995,15 @@ class PrinterHeaters:
             sensor = self.heaters[sensor_name]
         else:
             sensor = self.printer.lookup_object(sensor_name)
-        toolhead = self.printer.lookup_object("toolhead")
-        reactor = self.printer.get_reactor()
-        eventtime = reactor.monotonic()
-        while not self.printer.is_shutdown():
-            temp, target = sensor.get_temp(eventtime)
+
+        def check(eventtime):
+            temp, _ = sensor.get_temp(eventtime)
             if temp >= min_temp and temp <= max_temp:
-                return
-            print_time = toolhead.get_last_move_time()
+                return False
             gcmd.respond_raw(self._get_temp(eventtime))
-            eventtime = reactor.pause(eventtime + 1.0)
+            return True
+
+        self.printer.wait_while(check)
 
 
 def load_config(config):
