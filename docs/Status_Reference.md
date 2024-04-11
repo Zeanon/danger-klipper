@@ -540,7 +540,7 @@ The following information is available in the `toolhead` object
   limit value (eg, `axis_minimum.x`, `axis_maximum.z`).
 - For Delta printers the `cone_start_z` is the max z height at
   maximum radius (`printer.toolhead.cone_start_z`).
-- `max_velocity`, `max_accel`, `max_accel_to_decel`,
+- `max_velocity`, `max_accel`, `minimum_cruise_ratio`,
   `square_corner_velocity`: The current printing limits that are in
   effect. This may differ from the config file settings if a
   `SET_VELOCITY_LIMIT` (or `M204`) command alters them at run-time.
@@ -557,6 +557,14 @@ on a cartesian, hybrid_corexy or hybrid_corexz robot
   "INACTIVE" and "PRIMARY".
 - `carriage_1`: The mode of the carriage 1. Possible values are:
   "INACTIVE", "PRIMARY", "COPY", and "MIRROR".
+
+## trad_rack
+
+The following informatin is available in the
+[trad_rack](Config_Reference.md#trad_rack) object:
+- `curr_lane`: The lane the selector is currently positioned at.
+- `active_lane`: The lane currently loaded in the toolhead.
+- `selector_homed`: Whether or not the selector axis is homed.
 
 ## virtual_sdcard
 

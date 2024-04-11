@@ -4,6 +4,7 @@
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
 import sys, os, glob, re, time, logging, configparser, io
+from extras.danger_options import get_danger_options
 
 error = configparser.Error
 
@@ -262,6 +263,8 @@ class PrinterConfig:
         self.printer = printer
         self.autosave = None
         self.deprecated = {}
+        self.runtime_warnings = []
+        self.deprecate_warnings = []
         self.status_raw_config = {}
         self.status_save_pending = {}
         self.status_settings = {}
@@ -361,7 +364,10 @@ class PrinterConfig:
         dirname = os.path.dirname(source_filename)
         include_spec = include_spec.strip()
         include_glob = os.path.join(dirname, include_spec)
-        include_filenames = glob.glob(include_glob)
+        if sys.version_info >= (3, 5):
+            include_filenames = glob.glob(include_glob, recursive=True)
+        else:
+            include_filenames = glob.glob(include_glob)
         if not include_filenames and not glob.has_magic(include_glob):
             # Empty set is OK if wildcard but not for direct file reference
             raise error("Include file '%s' does not exist" % (include_glob,))
@@ -473,6 +479,12 @@ class PrinterConfig:
         self.printer.set_rollover_info("config", "\n".join(lines))
 
     # Status reporting
+    def runtime_warning(self, msg):
+        logging.warn(msg)
+        res = {"type": "runtime_warning", "message": msg}
+        self.runtime_warnings.append(res)
+        self.status_warnings = self.runtime_warnings + self.deprecate_warnings
+
     def deprecate(self, section, option, value=None, msg=None):
         self.deprecated[(section, option, value)] = msg
 
@@ -676,8 +688,7 @@ class PrinterConfig:
             raise gcode.error(msg)
         regular_data = self._strip_duplicates(regular_data, self.autosave)
 
-        self.danger_options = self.printer.lookup_object("danger_options")
-        if self.danger_options.autosave_includes:
+        if get_danger_options().autosave_includes:
             self._save_includes(cfgname, data, set(), gcode)
 
         # NOW we're safe to check for conflicts
@@ -685,5 +696,12 @@ class PrinterConfig:
         data = regular_data.rstrip() + autosave_data
         self._write_backup(cfgname, data, gcode)
 
-        # Request a restart
-        gcode.request_restart("restart")
+        # If requested restart or no restart just flag config saved
+        require_restart = gcmd.get_int("RESTART", 1, minval=0, maxval=1)
+        if require_restart:
+            # Request a restart
+            gcode.request_restart("restart")
+        else:
+            # flag config updated to false since config saved with no restart
+            self.save_config_pending = False
+            gcode.respond_info("Config update without restart successful")
