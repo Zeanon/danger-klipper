@@ -458,6 +458,8 @@ def main():
     opts.add_option(
         "-v", action="store_true", dest="verbose", help="enable debug messages"
     )
+    opts.add_option("--warn", action="store_true", dest="warn",
+                    help="reduce logging to warnings")
     opts.add_option(
         "-o",
         "--debugoutput",
@@ -492,6 +494,8 @@ def main():
     debuglevel = logging.INFO
     if options.verbose:
         debuglevel = logging.DEBUG
+    elif options.warn:
+        debuglevel = logging.WARNING
     if options.debuginput:
         start_args["debuginput"] = options.debuginput
         debuginput = open(options.debuginput, "rb")
