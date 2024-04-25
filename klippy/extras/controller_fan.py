@@ -26,7 +26,6 @@ class ControllerFan:
         self.stepper_enable = self.printer.load_object(config, "stepper_enable")
         self.printer.load_object(config, "heaters")
         self.heaters = []
-        self.fan = fan.Fan(config)
         self.fan_speed = config.getfloat(
             "fan_speed", default=1.0, minval=0.0, maxval=1.0
         )
