@@ -254,8 +254,11 @@ class ControlCurve:
             temperature_fan if controlled_fan is None else controlled_fan
         )
         self.points = []
-        for i in range(1, 99):
-            current_point = config.getfloatlist("point%d" % i, None)
+        points = config.getlists(
+            "points", seps=(",", "\n"), parser=float, count=2
+        )
+        for temp, pwm in points:
+            current_point = [temp, pwm]
             if current_point is None:
                 continue
             if len(current_point) != 2:
