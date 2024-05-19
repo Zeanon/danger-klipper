@@ -34,7 +34,9 @@ class PrinterSensorCombined:
         self.temperature_update_timer = self.reactor.register_timer(
             self._temperature_update_event
         )
-        self.ignore_limits = self.name in get_danger_options().temp_ignore_limits
+        self.ignore_limits = (
+            self.name in get_danger_options().temp_ignore_limits
+        )
         self.printer.register_event_handler(
             "klippy:connect", self._handle_connect
         )

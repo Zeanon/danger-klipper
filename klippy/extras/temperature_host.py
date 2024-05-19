@@ -27,7 +27,9 @@ class Temperature_HOST:
         self.sample_timer = self.reactor.register_timer(
             self._sample_pi_temperature
         )
-        self.ignore_limits = self.name in get_danger_options().temp_ignore_limits
+        self.ignore_limits = (
+            self.name in get_danger_options().temp_ignore_limits
+        )
         try:
             self.file_handle = open(self.path, "r")
         except:

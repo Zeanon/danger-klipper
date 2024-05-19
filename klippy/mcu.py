@@ -840,9 +840,8 @@ class MCU:
             prefix = "Previous MCU '%s' shutdown: " % (self._name,)
 
         append_msgs = []
-        if (
-            msg.startswith("ADC out of range")
-            or msg.startswith("Thermocouple reader fault")
+        if msg.startswith("ADC out of range") or msg.startswith(
+            "Thermocouple reader fault"
         ):
             pheaters = self._printer.lookup_object("heaters")
             heaters = [
