@@ -21,6 +21,7 @@ RANGE_CHECK_COUNT = 4
 class PrinterADCtoTemperature:
     def __init__(self, config, adc_convert):
         self.adc_convert = adc_convert
+        self.name = config.get_name().split()[-1]
         ppins = config.get_printer().lookup_object("pins")
         self.mcu_adc = ppins.setup_pin("adc", config.get("sensor_pin"))
         self.mcu_adc.setup_adc_callback(REPORT_TIME, self.adc_callback)
@@ -38,7 +39,7 @@ class PrinterADCtoTemperature:
         self.temperature_callback(read_time + SAMPLE_COUNT * SAMPLE_TIME, temp)
 
     def setup_minmax(self, min_temp, max_temp):
-        if get_danger_options().temp_ignore_limits:
+        if self.name in get_danger_options().temp_ignore_limits:
             danger_check_count = 0
         else:
             danger_check_count = RANGE_CHECK_COUNT

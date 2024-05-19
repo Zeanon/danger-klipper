@@ -94,11 +94,11 @@ A collection of DangerKlipper-specific system options
 #   Tolerance (in mm) for distance moved in the second homing. Ensures the
 #   second homing distance closely matches the `min_home_dist` when using
 #   sensorless homing. The default is 0.5mm.
-#temp_ignore_limits: False
-#   When set to true, this parameter ignores the min_value and max_value
-#   limits for temperature sensors. It prevents shutdowns due to
+#temp_ignore_limits:
+#   A list of temperature sensors which should ignore their min and max 
+#   temperatures. It prevents shutdowns due to
 #   'ADC out of range' and similar errors by allowing readings outside the
-#   specified range without triggering a shutdown. The default is False.
+#   specified range without triggering a shutdown. The default are None.
 #autosave_includes: False
 #   When set to true, SAVE_CONFIG will recursively read [include ...] blocks
 #   for conflicts to autosave data. Any configurations updated will be backed

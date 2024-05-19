@@ -27,6 +27,9 @@ class Temperature_HOST:
         self.sample_timer = self.reactor.register_timer(
             self._sample_pi_temperature
         )
+        self.ignore_limits = (
+            self.name in get_danger_options().temp_ignore_limits
+        )
         try:
             self.file_handle = open(self.path, "r")
         except:
@@ -60,13 +63,23 @@ class Temperature_HOST:
             self.temp = 0.0
             return self.reactor.NEVER
 
-        if (
-            self.temp < self.min_temp or self.temp > self.max_temp
-        ) and not get_danger_options().temp_ignore_limits:
-            self.printer.invoke_shutdown(
-                "HOST temperature %0.1f outside range of %0.1f:%.01f"
-                % (self.temp, self.min_temp, self.max_temp)
-            )
+        if not self.ignore_limits:
+            if self.temp < self.min_temp:
+                self.printer.invoke_shutdown(
+                    "HOST temperature %0.1f below minimum temperature of %0.1f."
+                    % (
+                        self.temp,
+                        self.min_temp,
+                    )
+                )
+            if self.temp > self.max_temp:
+                self.printer.invoke_shutdown(
+                    "HOST temperature %0.1f above maximum temperature of %0.1f."
+                    % (
+                        self.temp,
+                        self.max_temp,
+                    )
+                )
 
         mcu = self.printer.lookup_object("mcu")
         measured_time = self.reactor.monotonic()

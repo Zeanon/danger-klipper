@@ -38,6 +38,9 @@ class LM75:
         )
         self.temp = self.min_temp = self.max_temp = 0.0
         self.sample_timer = self.reactor.register_timer(self._sample_lm75)
+        self.ignore_limits = (
+            self.name in get_danger_options().temp_ignore_limits
+        )
         self.printer.add_object("lm75 " + self.name, self)
         self.printer.register_event_handler(
             "klippy:connect", self.handle_connect
@@ -82,7 +85,7 @@ class LM75:
 
         if (
             self.temp < self.min_temp or self.temp > self.max_temp
-        ) and not get_danger_options().temp_ignore_limits:
+        ) and not self.ignore_limits:
             self.printer.invoke_shutdown(
                 "LM75 temperature %0.1f outside range of %0.1f:%.01f"
                 % (self.temp, self.min_temp, self.max_temp)

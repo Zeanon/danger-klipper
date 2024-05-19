@@ -8,6 +8,9 @@ All dates in this document are approximate.
 
 ## Changes
 
+20240519: `temp_ignore_limits` is now a list where you enter all the sensors
+that should be ignored.
+
 20240430: The `adc_ignore_limits` parameter in the `[danger_options]`
 config section has been renamed to `temp_ignore_limits` and it now
 covers all possible temperature sensors.
