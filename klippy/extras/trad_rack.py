@@ -238,7 +238,7 @@ class TradRack:
         self.bowden_unload_lengths_filename = os.path.expanduser(
             "~/bowden_unload_lengths.csv"
         )
-        self.ignore_next_unload_length = False
+        self.ignore_limits_next_unload_length = False
         self.last_heater_target = 0.0
         self.tr_next_generator = None
 
@@ -800,7 +800,7 @@ class TradRack:
                     " TR_UNLOAD_TOOLHEAD to unload the filament. Then use"
                     " TR_RESUME to resume the print."
                 )
-                self.ignore_next_unload_length = True
+                self.ignore_limits_next_unload_length = True
 
                 # set up resume callback
                 resume_kwargs = {
@@ -1569,7 +1569,7 @@ class TradRack:
                 )
 
             # update bowden_unload_length
-            if base_length is not None and not self.ignore_next_unload_length:
+            if base_length is not None and not self.ignore_limits_next_unload_length:
                 length = (
                     move_start
                     - trigpos[1]
@@ -1646,7 +1646,7 @@ class TradRack:
         self.toolhead.wait_moves()
         if not (force_unload or selector_sensor_state or toolhead_sensor_state):
             # reset ignore_next_unload_length
-            self.ignore_next_unload_length = False
+            self.ignore_limits_next_unload_length = False
 
             return
 

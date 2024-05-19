@@ -20,6 +20,7 @@ MAX_INVALID_COUNT = 3
 class SensorBase:
     def __init__(self, config, chip_type, config_cmd=None, spi_mode=1):
         self.printer = config.get_printer()
+        self.name = config.get_name().split()[-1]
         self.chip_type = chip_type
         self._callback = None
         self.min_sample_value = self.max_sample_value = 0
@@ -49,17 +50,17 @@ class SensorBase:
         return REPORT_TIME
 
     def _build_config(self):
+        if self.name in get_danger_options().temp_ignore_limits:
+            danger_check_count = 0
+        else:
+            danger_check_count = MAX_INVALID_COUNT
+
         self.mcu.add_config_cmd(
             "config_thermocouple oid=%u spi_oid=%u thermocouple_type=%s"
             % (self.oid, self.spi.get_oid(), self.chip_type)
         )
         clock = self.mcu.get_query_slot(self.oid)
         self._report_clock = self.mcu.seconds_to_clock(REPORT_TIME)
-
-        if get_danger_options().temp_ignore_limits:
-            danger_check_count = 0
-        else:
-            danger_check_count = MAX_INVALID_COUNT
 
         self.mcu.add_config_cmd(
             "query_thermocouple oid=%u clock=%u rest_ticks=%u"

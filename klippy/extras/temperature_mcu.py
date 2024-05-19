@@ -16,6 +16,7 @@ RANGE_CHECK_COUNT = 4
 class PrinterTemperatureMCU:
     def __init__(self, config):
         self.printer = config.get_printer()
+        self.name = config.get_name().split()[-1]
         self.base_temperature = self.slope = None
         self.temp1 = self.adc1 = self.temp2 = self.adc2 = None
         self.min_temp = self.max_temp = 0.0
@@ -42,7 +43,7 @@ class PrinterTemperatureMCU:
         query_adc = config.get_printer().load_object(config, "query_adc")
         query_adc.register_adc(config.get_name(), self.mcu_adc)
 
-        if get_danger_options().temp_ignore_limits:
+        if self.name in get_danger_options().temp_ignore_limits:
             self._danger_check_count = 0
         else:
             self._danger_check_count = RANGE_CHECK_COUNT

@@ -39,7 +39,7 @@ class DS18B20:
                 self.oid,
                 sid,
                 DS18_MAX_CONSECUTIVE_ERRORS,
-                int(get_danger_options().temp_ignore_limits),
+                int(self.name in get_danger_options().temp_ignore_limits),
             )
         )
 
