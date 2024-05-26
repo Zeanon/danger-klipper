@@ -174,6 +174,10 @@ class BME280:
         self.os_pres = config.getint("bme280_oversample_pressure", 2)
         self.gas_heat_temp = config.getint("bme280_gas_target_temp", 320)
         self.gas_heat_duration = config.getint("bme280_gas_heat_duration", 150)
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         logging.info(
             "BMxx80: Oversampling: Temp %dx Humid %dx Pressure %dx"
             % (
@@ -435,7 +439,7 @@ class BME280:
             self.humidity = self._compensate_humidity_bme280(humid_raw)
         if (
             self.temp < self.min_temp or self.temp > self.max_temp
-        ) and not get_danger_options().temp_ignore_limits:
+        ) and not self.is_non_critical:
             self.printer.invoke_shutdown(
                 "BME280 temperature %0.1f outside range of %0.1f:%.01f"
                 % (self.temp, self.min_temp, self.max_temp)

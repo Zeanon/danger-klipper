@@ -98,6 +98,8 @@ If I want my printer to light itself on fire, I should be able to make my printe
 
 - [temperature_fan: curve control algorithm](https://github.com/DangerKlippers/danger-klipper/pull/193)
 
+- [per sensor temp_ignore_limits](https://github.com/DangerKlippers/danger-klipper/pull/276)
+
 If you're feeling adventurous, take a peek at the extra features in the bleeding-edge branch [feature documentation](docs/Bleeding_Edge.md)
 and [feature configuration reference](docs/Config_Reference_Bleeding_Edge.md):
 

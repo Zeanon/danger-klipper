@@ -19,6 +19,10 @@ class PrinterSensorCombined:
         self.sensor_names = config.getlist("sensor_list")
         # get maximum_deviation parameter from config
         self.max_deviation = config.getfloat("maximum_deviation", above=0.0)
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         # ensure compatibility with itself
         self.sensor = self
         # get empty list for sensors, could be any sensor class or a heater
@@ -79,7 +83,7 @@ class PrinterSensorCombined:
         # check if values are out of max_deviation range
         if (
             max(values) - min(values)
-        ) > self.max_deviation and not get_danger_options().temp_ignore_limits:
+        ) > self.max_deviation and not self.is_non_critical:
             self.printer.invoke_shutdown(
                 "COMBINED SENSOR maximum deviation exceeded limit of %0.1f, "
                 "max sensor value %0.1f, min sensor value %0.1f."

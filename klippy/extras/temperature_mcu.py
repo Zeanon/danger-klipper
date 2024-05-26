@@ -22,6 +22,10 @@ class PrinterTemperatureMCU:
         self.debug_read_cmd = None
         # Read config
         mcu_name = config.get("sensor_mcu", "mcu")
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         self.reference_voltage = config.getfloat(
             "reference_voltage", default=3.3
         )
@@ -42,7 +46,7 @@ class PrinterTemperatureMCU:
         query_adc = config.get_printer().load_object(config, "query_adc")
         query_adc.register_adc(config.get_name(), self.mcu_adc)
 
-        if get_danger_options().temp_ignore_limits:
+        if self.is_non_critical:
             self._danger_check_count = 0
         else:
             self._danger_check_count = RANGE_CHECK_COUNT

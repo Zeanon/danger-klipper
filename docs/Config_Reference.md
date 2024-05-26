@@ -1018,6 +1018,9 @@ per_move_pressure_advance: False
 #   If true, uses pressure advance constant from trapq when processing moves
 #   This causes changes to pressure advance be taken into account immediately,
 #   for all moves in the current queue, rather than ~250ms later once the queue gets flushed
+is_non_critical: False
+#   If true, klipper will not go into a shutdown state when the sensor exceeds
+#   the defined temperature limits.
 
 ```
 
@@ -1488,6 +1491,9 @@ See also: [extended g-code commands](G-Codes.md#z_thermal_adjust).
 #gcode_id:
 #   See the "heater_generic" section for the definition of this
 #   parameter.
+is_non_critical: False
+#   If true, klipper will not go into a shutdown state when the sensor exceeds
+#   the defined temperature limits.
 ```
 
 ## Customized homing
@@ -2809,6 +2815,9 @@ target temperature.
 #max_temp:
 #   See the "extruder" section for the definition of the above
 #   parameters.
+is_non_critical: False
+#   If true, klipper will not go into a shutdown state when the sensor exceeds
+#   the defined temperature limits.
 ```
 
 ### [temperature_sensor]
@@ -2827,6 +2836,9 @@ temperature sensors that are reported via the M105 command.
 #gcode_id:
 #   See the "heater_generic" section for the definition of this
 #   parameter.
+is_non_critical: False
+#   If true, klipper will not go into a shutdown state when the sensor exceeds
+#   the defined temperature limits.
 ```
 
 ## Temperature sensors

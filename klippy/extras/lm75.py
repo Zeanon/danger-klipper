@@ -36,6 +36,10 @@ class LM75:
         self.report_time = config.getfloat(
             "lm75_report_time", LM75_REPORT_TIME, minval=LM75_MIN_REPORT_TIME
         )
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         self.temp = self.min_temp = self.max_temp = 0.0
         self.sample_timer = self.reactor.register_timer(self._sample_lm75)
         self.printer.add_object("lm75 " + self.name, self)
@@ -82,7 +86,7 @@ class LM75:
 
         if (
             self.temp < self.min_temp or self.temp > self.max_temp
-        ) and not get_danger_options().temp_ignore_limits:
+        ) and not self.is_non_critical:
             self.printer.invoke_shutdown(
                 "LM75 temperature %0.1f outside range of %0.1f:%.01f"
                 % (self.temp, self.min_temp, self.max_temp)

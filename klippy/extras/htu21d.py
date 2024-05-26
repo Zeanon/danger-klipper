@@ -101,6 +101,10 @@ class HTU21D:
         self.hold_master_mode = config.getboolean("htu21d_hold_master", False)
         self.resolution = config.get("htu21d_resolution", "TEMP12_HUM08")
         self.report_time = config.getint("htu21d_report_time", 30, minval=5)
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         if self.resolution not in HTU21D_RESOLUTIONS:
             raise config.error(
                 "Invalid HTU21D Resolution. Valid are %s"
@@ -246,7 +250,7 @@ class HTU21D:
 
         if (
             self.temp < self.min_temp or self.temp > self.max_temp
-        ) and not get_danger_options().temp_ignore_limits:
+        ) and not self.is_non_critical:
             self.printer.invoke_shutdown(
                 "HTU21D temperature %0.1f outside range of %0.1f:%.01f"
                 % (self.temp, self.min_temp, self.max_temp)

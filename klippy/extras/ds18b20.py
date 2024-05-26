@@ -24,6 +24,10 @@ class DS18B20:
         self.report_time = config.getfloat(
             "ds18_report_time", DS18_REPORT_TIME, minval=DS18_MIN_REPORT_TIME
         )
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         self._mcu = mcu.get_printer_mcu(self.printer, config.get("sensor_mcu"))
         self.oid = self._mcu.create_oid()
         self._mcu.register_response(
@@ -39,7 +43,7 @@ class DS18B20:
                 self.oid,
                 sid,
                 DS18_MAX_CONSECUTIVE_ERRORS,
-                int(get_danger_options().temp_ignore_limits),
+                int(self.is_non_critical),
             )
         )
 

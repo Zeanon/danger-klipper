@@ -18,6 +18,10 @@ class Temperature_HOST:
         self.reactor = self.printer.get_reactor()
         self.name = config.get_name().split()[-1]
         self.path = config.get("sensor_path", RPI_PROC_TEMP_FILE)
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
 
         self.temp = self.min_temp = self.max_temp = 0.0
 
@@ -62,7 +66,7 @@ class Temperature_HOST:
 
         if (
             self.temp < self.min_temp or self.temp > self.max_temp
-        ) and not get_danger_options().temp_ignore_limits:
+        ) and not self.is_non_critical:
             self.printer.invoke_shutdown(
                 "HOST temperature %0.1f outside range of %0.1f:%.01f"
                 % (self.temp, self.min_temp, self.max_temp)

@@ -35,6 +35,10 @@ class SensorBase:
         mcu.register_response(
             self._handle_spi_response, "thermocouple_result", oid
         )
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         mcu.register_config_callback(self._build_config)
 
     def setup_minmax(self, min_temp, max_temp):
@@ -56,7 +60,7 @@ class SensorBase:
         clock = self.mcu.get_query_slot(self.oid)
         self._report_clock = self.mcu.seconds_to_clock(REPORT_TIME)
 
-        if get_danger_options().temp_ignore_limits:
+        if self.is_non_critical:
             danger_check_count = 0
         else:
             danger_check_count = MAX_INVALID_COUNT

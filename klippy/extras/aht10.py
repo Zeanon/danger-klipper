@@ -35,6 +35,10 @@ class AHT10:
             config, default_addr=AHT10_I2C_ADDR, default_speed=100000
         )
         self.report_time = config.getint("aht10_report_time", 30, minval=5)
+        self.is_non_critical = (
+            get_danger_options().temp_ignore_limits
+            or config.getboolean("is_non_critical", False)
+        )
         self.temp = self.min_temp = self.max_temp = self.humidity = 0.0
         self.sample_timer = self.reactor.register_timer(self._sample_aht10)
         self.printer.add_object("aht10 " + self.name, self)
@@ -155,7 +159,7 @@ class AHT10:
         if (
             self.temp < self.min_temp
             or self.temp > self.max_temp
-            and not get_danger_options().temp_ignore_limits
+            and not self.is_non_critical
         ):
             self.printer.invoke_shutdown(
                 "AHT10 temperature %0.1f outside range of %0.1f:%.01f"
