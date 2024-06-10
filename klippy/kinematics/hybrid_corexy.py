@@ -66,6 +66,18 @@ class HybridCoreXYKinematics:
         )
         self.limits = [(1.0, -1.0)] * 3
 
+    def get_rails(self):
+        return self.rails
+
+    def get_connected_rails(self, axis):
+        if axis == 0:
+            return [self.rails[0], self.rails[1]]
+        elif axis == 1:
+            return [self.rails[1]]
+        elif axis == 2:
+            return [self.rails[2]]
+        raise IndexError(f"Rail does not exist")
+
     def get_steppers(self):
         return [s for rail in self.rails for s in rail.get_steppers()]
 

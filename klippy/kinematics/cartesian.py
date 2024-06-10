@@ -61,6 +61,14 @@ class CartKinematics:
         )
         self.limits = [(1.0, -1.0)] * 3
 
+    def get_rails(self):
+        return self.rails
+
+    def get_connected_rails(self, axis):
+        if axis > 2 or axis < 0:
+            raise IndexError(f"Rail does not exist")
+        return [self.rails[axis]]
+
     def get_steppers(self):
         return [s for rail in self.rails for s in rail.get_steppers()]
 

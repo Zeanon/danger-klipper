@@ -128,6 +128,16 @@ class DeltesianKinematics:
         self.set_position([0.0, 0.0, 0.0], ())
         self.supports_dual_carriage = False
 
+    def get_rails(self):
+        return self.rails
+
+    def get_connected_rails(self, axis):
+        if axis == 0 or axis == 2:
+            return [self.rails[0], self.rails[2]]
+        elif axis == 1:
+            return [self.rails[1]]
+        raise IndexError(f"Rail does not exist")
+
     def get_steppers(self):
         return [s for rail in self.rails for s in rail.get_steppers()]
 

@@ -50,6 +50,16 @@ class PolarKinematics:
         self.axes_max = toolhead.Coord(max_xy, max_xy, max_z, 0.0)
         self.supports_dual_carriage = False
 
+    def get_rails(self):
+        return self.rails
+
+    def get_connected_rails(self, axis):
+        if axis == 0 or axis == 1:
+            return [self.rails[0], self.rails[1]]
+        elif axis == 2:
+            return [self.rails[2]]
+        raise IndexError(f"Rail does not exist")
+
     def get_steppers(self):
         return list(self.steppers)
 
