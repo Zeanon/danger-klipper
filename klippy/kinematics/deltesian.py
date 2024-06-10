@@ -15,6 +15,7 @@ MIN_ANGLE = 5.0
 
 class DeltesianKinematics:
     def __init__(self, toolhead, config):
+        self.printer = config.get_printer()
         self.rails = [None] * 3
         stepper_configs = [
             config.getsection("stepper_" + s) for s in ["left", "right", "y"]
@@ -50,9 +51,14 @@ class DeltesianKinematics:
         for s in self.get_steppers():
             s.set_trapq(toolhead.get_trapq())
             toolhead.register_step_generator(s.generate_steps)
-        config.get_printer().register_event_handler(
-            "stepper_enable:motor_off", self._motor_off
+        self.printer.register_event_handler("stepper_enable:motor_off", self._motor_off)
+        self.printer.register_event_handler(
+            "stepper_enable:disable_left", self._disable_towers
         )
+        self.printer.register_event_handler(
+            "stepper_enable:disable_right", self._disable_towers
+        )
+        self.printer.register_event_handler("stepper_enable:disable_y", self._disable_y)
         self.limits = [(1.0, -1.0)] * 3
         # X axis limits
         min_angle = config.getfloat(
@@ -191,6 +197,13 @@ class DeltesianKinematics:
 
     def _motor_off(self, print_time):
         self.homed_axis = [False] * 3
+
+    def _disable_y(self, print_time):
+        self.homed_axis[1] = False
+
+    def _disable_towers(self, print_time):
+        self.homed_axis[0] = False
+        self.homed_axis[2] = False
 
     def check_move(self, move):
         limits = list(map(list, self.limits))

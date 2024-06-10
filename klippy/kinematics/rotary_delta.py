@@ -9,6 +9,7 @@ import stepper, mathutil, chelper
 
 class RotaryDeltaKinematics:
     def __init__(self, toolhead, config):
+        self.printer = config.get_printer()
         # Setup tower rails
         stepper_configs = [config.getsection("stepper_" + a) for a in "abc"]
         rail_a = stepper.PrinterRail(
@@ -33,6 +34,9 @@ class RotaryDeltaKinematics:
         config.get_printer().register_event_handler(
             "stepper_enable:motor_off", self._motor_off
         )
+        self.printer.register_event_handler("stepper_enable:disable_a", self._motor_off)
+        self.printer.register_event_handler("stepper_enable:disable_b", self._motor_off)
+        self.printer.register_event_handler("stepper_enable:disable_c", self._motor_off)
         # Read config
         max_velocity, max_accel = toolhead.get_max_velocity()
         self.max_z_velocity = config.getfloat(

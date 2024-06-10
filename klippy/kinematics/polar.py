@@ -9,6 +9,7 @@ import stepper
 
 class PolarKinematics:
     def __init__(self, toolhead, config):
+        self.printer = config.get_printer()
         # Setup axis steppers
         stepper_bed = stepper.PrinterStepper(
             config.getsection("stepper_bed"), units_in_radians=True
@@ -25,9 +26,14 @@ class PolarKinematics:
         for s in self.get_steppers():
             s.set_trapq(toolhead.get_trapq())
             toolhead.register_step_generator(s.generate_steps)
-        config.get_printer().register_event_handler(
-            "stepper_enable:motor_off", self._motor_off
+        self.printer.register_event_handler("stepper_enable:motor_off", self._motor_off)
+        self.printer.register_event_handler(
+            "stepper_enable:disable_bed", self._disable_xy
         )
+        self.printer.register_event_handler(
+            "stepper_enable:disable_arm", self._disable_xy
+        )
+        self.printer.register_event_handler("stepper_enable:disable_z", self._disable_z)
         # Setup boundary checks
         max_velocity, max_accel = toolhead.get_max_velocity()
         self.max_z_velocity = config.getfloat(
@@ -105,6 +111,12 @@ class PolarKinematics:
     def _motor_off(self, print_time):
         self.limit_z = (1.0, -1.0)
         self.limit_xy2 = -1.0
+
+    def _disable_xy(self, print_time):
+        self.limit_xy2 = -1.0
+
+    def _disable_z(self, print_time):
+        self.limit_z = (1.0, -1.0)
 
     def check_move(self, move):
         end_pos = move.end_pos

@@ -105,32 +105,75 @@ class PrinterStepperEnable:
         enable = setup_enable_pin(self.printer, config.get("enable_pin", None))
         self.enable_lines[name] = EnableTracking(mcu_stepper, enable)
 
+    def stepper_off(self, stepper_name, print_time, rail_name):
+        el = self.enable_lines[stepper_name]
+        el.motor_disable(print_time)
+        if rail_name != "extruder":
+            self.printer.send_event(
+                "stepper_enable:disable_%s" % rail_name.lower(), print_time
+            )
+
     def motor_off(self):
+        self.axes_off()
+
+    def axes_off(self, axes=None):
+        if axes is None:
+            axes = [0, 1, 2, 3]
         toolhead = self.printer.lookup_object("toolhead")
         toolhead.dwell(DISABLE_STALL_TIME)
         print_time = toolhead.get_last_move_time()
-        for el in self.enable_lines.values():
-            el.motor_disable(print_time)
-        self.printer.send_event("stepper_enable:motor_off", print_time)
+        kin = toolhead.get_kinematics()
+        if 3 in axes:
+            if "extruder" in self.enable_lines:
+                self.stepper_off("extruder", print_time, "extruder")
+                for i in range(1, 99):
+                    extruder_name = "extruder" + str(i)
+                    if extruder_name not in self.enable_lines:
+                        break
+                    self.stepper_off(extruder_name, print_time, "extruder")
+        for axis in axes:
+            try:
+                rails = kin.get_connected_rails(axis)
+                for rail in rails:
+                    steppers = rail.get_steppers()
+                    rail_name = rail.mcu_stepper.get_name(True)
+                    logging.info(rail_name)
+                    for stepper in steppers:
+                        self.stepper_off(stepper.get_name(), print_time, rail_name)
+            except IndexError:
+                continue
+        self.printer.send_event("stepper_enable:axes_off", print_time)
         toolhead.dwell(DISABLE_STALL_TIME)
 
-    def motor_debug_enable(self, stepper, enable):
+    def motor_debug_enable(self, stepper, enable, notify=True):
         toolhead = self.printer.lookup_object("toolhead")
         toolhead.dwell(DISABLE_STALL_TIME)
         print_time = toolhead.get_last_move_time()
+        kin = toolhead.get_kinematics()
         el = self.enable_lines[stepper]
         if enable:
             el.motor_enable(print_time)
-            logging.info("%s has been manually enabled", stepper)
         else:
             el.motor_disable(print_time)
-            logging.info("%s has been manually disabled", stepper)
+            if notify:
+                for rail in kin.get_rails():
+                    for stepper in rail.get_steppers():
+                        if stepper.get_name() == stepper:
+                            self.printer.send_event(
+                                "stepper_enable:disable_%s"
+                                % rail.mcu_stepper.get_name(True).lower(),
+                                print_time,
+                            )
+        logging.info(
+            "%s has been manually %s",
+            stepper,
+            "enabled" if enable else "disabled",
+        )
         toolhead.dwell(DISABLE_STALL_TIME)
 
     def get_status(self, eventtime):
         steppers = {
-            name: et.is_motor_enabled()
-            for (name, et) in self.enable_lines.items()
+            name: et.is_motor_enabled() for (name, et) in self.enable_lines.items()
         }
         return {"steppers": steppers}
 
@@ -138,20 +181,27 @@ class PrinterStepperEnable:
         self.motor_off()
 
     def cmd_M18(self, gcmd):
+        axes = []
+        for pos, axis in enumerate("XYZE"):
+            if gcmd.get(axis, None) is not None:
+                axes.append(pos)
+        if not axes:
+            axes = [0, 1, 2, 3]
         # Turn off motors
-        self.motor_off()
+        self.axes_off(axes)
 
     cmd_SET_STEPPER_ENABLE_help = "Enable/disable individual stepper by name"
 
     def cmd_SET_STEPPER_ENABLE(self, gcmd):
         stepper_name = gcmd.get("STEPPER", None)
+        notify = gcmd.get_int("NOTIFY", 1)
         if stepper_name not in self.enable_lines:
             gcmd.respond_info(
                 'SET_STEPPER_ENABLE: Invalid stepper "%s"' % (stepper_name,)
             )
             return
         stepper_enable = gcmd.get_int("ENABLE", 1)
-        self.motor_debug_enable(stepper_name, stepper_enable)
+        self.motor_debug_enable(stepper_name, stepper_enable, notify)
 
     def lookup_enable(self, name):
         if name not in self.enable_lines:
