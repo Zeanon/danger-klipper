@@ -54,7 +54,7 @@ class CoreXYKinematics:
             return [self.rails[0], self.rails[1]]
         elif axis == 2:
             return [self.rails[2]]
-        raise IndexError(f"Rail does not exist")
+        raise IndexError("Rail does not exist")
 
     def get_steppers(self):
         return [s for rail in self.rails for s in rail.get_steppers()]

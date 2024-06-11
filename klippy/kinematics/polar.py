@@ -58,7 +58,7 @@ class PolarKinematics:
             return [self.rails[0], self.rails[1]]
         elif axis == 2:
             return [self.rails[2]]
-        raise IndexError(f"Rail does not exist")
+        raise IndexError("Rail does not exist")
 
     def get_steppers(self):
         return list(self.steppers)
