@@ -10,6 +10,12 @@ class NoneKinematics:
         self.axes_minmax = toolhead.Coord(0.0, 0.0, 0.0, 0.0)
         self.supports_dual_carriage = False
 
+    def get_rails(self):
+        return []
+
+    def get_connected_rails(self, axis):
+        raise IndexError("Rail does not exist")
+
     def get_steppers(self):
         return []
 
