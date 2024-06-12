@@ -126,21 +126,29 @@ class PrinterStepperEnable:
         if 3 in axes:
             if "extruder" in self.enable_lines:
                 self.stepper_off("extruder", print_time, "extruder")
-                for i in range(1, 99):
-                    extruder_name = "extruder" + str(i)
-                    if extruder_name not in self.enable_lines:
-                        break
+                i = 1
+                extruder_name = f"extruder{i}"
+                while extruder_name in self.enable_lines:
                     self.stepper_off(extruder_name, print_time, "extruder")
-        for axis in axes:
-            try:
-                rails = kin.get_connected_rails(axis)
-                for rail in rails:
-                    steppers = rail.get_steppers()
-                    rail_name = rail.mcu_stepper.get_name(True)
-                    for stepper in steppers:
-                        self.stepper_off(stepper.get_name(), print_time, rail_name)
-            except IndexError:
-                continue
+                    i += 1
+                    extruder_name = f"extruder{i}"
+        if hasattr(kin, "get_connected_rails"):
+            for axis in axes:
+                try:
+                    rails = kin.get_connected_rails(axis)
+                    for rail in rails:
+                        steppers = rail.get_steppers()
+                        rail_name = rail.mcu_stepper.get_name(True)
+                        for stepper in steppers:
+                            self.stepper_off(
+                                stepper.get_name(), print_time, rail_name
+                            )
+                except IndexError:
+                    continue
+        else:
+            for axis_name, el in self.enable_lines.items():
+                if not axis_name.startswith("extruder"):
+                    el.motor_disable(print_time)
         self.printer.send_event("stepper_enable:axes_off", print_time)
         toolhead.dwell(DISABLE_STALL_TIME)
 
@@ -149,6 +157,8 @@ class PrinterStepperEnable:
         toolhead.dwell(DISABLE_STALL_TIME)
         print_time = toolhead.get_last_move_time()
         kin = toolhead.get_kinematics()
+        if not hasattr(kin, "get_rails"):
+            notify = False
         el = self.enable_lines[stepper]
         if enable:
             el.motor_enable(print_time)

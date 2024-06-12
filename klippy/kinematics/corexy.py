@@ -24,14 +24,18 @@ class CoreXYKinematics:
         for s in self.get_steppers():
             s.set_trapq(toolhead.get_trapq())
             toolhead.register_step_generator(s.generate_steps)
-        self.printer.register_event_handler("stepper_enable:motor_off", self._motor_off)
+        self.printer.register_event_handler(
+            "stepper_enable:motor_off", self._motor_off
+        )
         self.printer.register_event_handler(
             "stepper_enable:disable_x", self._disable_xy
         )
         self.printer.register_event_handler(
             "stepper_enable:disable_y", self._disable_xy
         )
-        self.printer.register_event_handler("stepper_enable:disable_z", self._disable_z)
+        self.printer.register_event_handler(
+            "stepper_enable:disable_z", self._disable_z
+        )
         # Setup boundary checks
         max_velocity, max_accel = toolhead.get_max_velocity()
         self.max_z_velocity = config.getfloat(
