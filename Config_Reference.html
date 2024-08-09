@@ -702,6 +702,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#corexz-kinematics-with-limits-for-x-and-y-axes" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ CoreXZ Kinematics with limits for X and Y axes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#hybrid-corexy-kinematics" class="md-nav__link">
     <span class="md-ellipsis">
       Hybrid-CoreXY Kinematics
@@ -3478,6 +3487,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#corexz-kinematics-with-limits-for-x-and-y-axes" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ CoreXZ Kinematics with limits for X and Y axes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#hybrid-corexy-kinematics" class="md-nav__link">
     <span class="md-ellipsis">
       Hybrid-CoreXY Kinematics
@@ -5529,6 +5547,44 @@ max_z_accel:
 [stepper_z]
 </code></pre></div>
 
+<h3 id="corexz-kinematics-with-limits-for-x-and-y-axes">⚠️ CoreXZ Kinematics with limits for X and Y axes<a class="headerlink" href="#corexz-kinematics-with-limits-for-x-and-y-axes" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>[printer]
+kinematics: limited_corexz
+max_velocity: 500 # Hypotenuse of the two values bellow
+max_x_velocity: 400
+max_y_velocity: 300
+max_z_velocity: 5
+max_accel: 1500 # Default acceleration of your choice
+max_x_accel: 12000
+max_y_accel: 9000
+max_z_accel: 100
+scale_xy_accel: [True/False, default False]
+</code></pre></div>
+
+<p><code>max_velocity</code> is usually the hypotenuses of X and Y velocity, For example:
+with <code>max_x_velocity: 300</code> and <code>max_y_velocity: 400</code>, the recommended value
+is <code>max_velocity: 500</code>.</p>
+<p>If <code>scale_xy_accel</code> is False, <code>max_accel</code>, set by <code>M204</code> or
+<code>SET_VELOCITY_LIMIT</code>, acts as a third limit. In that case, this module
+doesn't apply limitations to moves with an acceleration lower than
+<code>max_x_accel</code> and <code>max_y_accel</code>.</p>
+<p>When <code>scale_xy_accel</code> is <code>True</code>, <code>max_x_accel</code> and <code>max_y_accel</code> are scaled by
+the ratio of the dynamically set acceleration and the hypotenuse of
+<code>max_x_accel</code> and <code>max_y_accel</code>, as reported from <code>SET_KINEMATICS_LIMIT</code>.
+This means that the actual acceleration will always depend on the
+direction.</p>
+<p>For example with these settings:</p>
+<div class="highlight"><pre><span></span><code>[printer]
+max_x_accel: 12000
+max_y_accel: 9000
+scale_xy_accel: True
+</code></pre></div>
+
+<p>SET_KINEMATICS_LIMIT will report a maximum acceleration of 15000 mm/s^2
+on 37 degrees diagonals. Thus, setting an acceleration of 3000 mm/s^2 in
+the slicer will make the toolhead accelerate at 3000 mm/s^2 on these 37
+and 143 degrees diagonals, but only 12000 * 3000 / 15000 = 2400 mm/s^2
+for moves aligned with the X axis and 18000 mm/s^2 for pure Y moves.</p>
 <h3 id="hybrid-corexy-kinematics">Hybrid-CoreXY Kinematics<a class="headerlink" href="#hybrid-corexy-kinematics" title="Permanent link">&para;</a></h3>
 <p>See <a href="https://github.com/DangerKlippers/danger-klipperblob/master/config/example-hybrid-corexy.cfg">example-hybrid-corexy.cfg</a>
 for an example hybrid corexy kinematics config file.</p>
@@ -6520,8 +6576,8 @@ using this feature may place the printer in an invalid state - see the
 <a href="G-Codes.html#force_move">command reference</a> for important details.</p>
 <div class="highlight"><pre><span></span><code>[force_move]
 #enable_force_move: True
-#   Set to true to enable FORCE_MOVE and SET_KINEMATIC_POSITION
-#   extended G-Code commands. The default is true.
+#   Set to `True` to enable FORCE_MOVE and SET_KINEMATIC_POSITION
+#   extended G-Code commands. The default is `True`.
 </code></pre></div>
 
 <h3 id="pause_resume">[pause_resume]<a class="headerlink" href="#pause_resume" title="Permanent link">&para;</a></h3>
@@ -6584,6 +6640,7 @@ allowing per-filament settings and runtime tuning.</p>
 </code></pre></div>
 
 <h3 id="respond">[respond]<a class="headerlink" href="#respond" title="Permanent link">&para;</a></h3>
+<p>This module is enabled by default in DangerKlipper!</p>
 <p>Enable the "M118" and "RESPOND" extended
 <a href="G-Codes.html#respond">commands</a>.</p>
 <div class="highlight"><pre><span></span><code>[respond]
@@ -6596,9 +6653,13 @@ allowing per-filament settings and runtime tuning.</p>
 #default_prefix: echo:
 #   Directly sets the default prefix. If present, this value will
 #   override the &quot;default_type&quot;.
+#enable_respond: True
+#   Set to `True` to enable M118 and RESPOND
+#   extended G-Code commands. The default is `True`.
 </code></pre></div>
 
 <h3 id="exclude_object">[exclude_object]<a class="headerlink" href="#exclude_object" title="Permanent link">&para;</a></h3>
+<p>This module is enabled by default in DangerKlipper!</p>
 <p>Enables support to exclude or cancel individual objects during the printing
 process.</p>
 <p>See the <a href="Exclude_Object.html">exclude objects guide</a> and
@@ -6607,6 +6668,9 @@ for additional information. See the
 <a href="https://github.com/DangerKlippers/danger-klipperblob/master/config/sample-macros.cfg">sample-macros.cfg</a> file for a
 Marlin/RepRapFirmware compatible M486 G-Code macro.</p>
 <div class="highlight"><pre><span></span><code>[exclude_object]
+#enable_exclude_object: True
+#   Set to `True` to enable `EXCLUDE_OBJECT_*` extended G-Code commands.
+#   The default is `True`.
 </code></pre></div>
 
 <h2 id="resonance-compensation">Resonance compensation<a class="headerlink" href="#resonance-compensation" title="Permanent link">&para;</a></h2>
@@ -6979,13 +7043,13 @@ detach_position: 0,0,0
 #   The default value is extract_probe value.
 #safe_dock_distance :
 #   This setting defines a security area around dock during ATTACH/DETACH_PROBE
-#   commands. While inside the area, the toolhead move away prior to reach the 
+#   commands. While inside the area, the toolhead move away prior to reach the
 #   approach or insert position.
-#   Default is the smallest distance to the dock of approach, detach, insert 
+#   Default is the smallest distance to the dock of approach, detach, insert
 #   position. It could be only lower than the Default value.
 #safe_position : approach_position
-#   A safe position to ensure MOVE_AVOIDING_DOCK travel does not move the 
-#   toolhead out of range.   
+#   A safe position to ensure MOVE_AVOIDING_DOCK travel does not move the
+#   toolhead out of range.
 #z_hop: 15.0
 #   Distance (in mm) to lift the Z axis prior to attaching/detaching the probe.
 #   If the Z axis is already homed and the current Z position is less
