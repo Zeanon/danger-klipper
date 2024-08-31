@@ -58,7 +58,7 @@ class BLTouchEndstopWrapper:
         mcu = pin_params["chip"]
         self.mcu_endstop = mcu.setup_pin("endstop", pin_params)
         # output mode
-        omodes = {"5V": "5V", "OD": "OD", None: None}
+        omodes = ["5V", "OD", None]
         self.output_mode = config.getchoice("set_output_mode", omodes, None)
         # Setup for sensor test
         self.next_test_time = 0.0
@@ -143,7 +143,12 @@ class BLTouchEndstopWrapper:
             ENDSTOP_REST_TIME,
             triggered=triggered,
         )
-        trigger_time = self.mcu_endstop.home_wait(self.action_end_time + 0.100)
+        try:
+            trigger_time = self.mcu_endstop.home_wait(
+                self.action_end_time + 0.100
+            )
+        except self.printer.command_error as e:
+            return False
         return trigger_time > 0.0
 
     def raise_probe(self):

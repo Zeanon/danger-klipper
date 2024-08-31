@@ -83,7 +83,10 @@ class ZAdjustStatus:
         )
 
     def check_retry_result(self, retry_result):
-        if retry_result == "done":
+        if retry_result and (
+            (isinstance(retry_result, str) and retry_result == "done")
+            or (isinstance(retry_result, float) and int(retry_result) == 0)
+        ):
             self.applied = True
         return retry_result
 
@@ -155,11 +158,11 @@ class RetryHelper:
                 % (self.value_label, self.error_msg_extra)
             )
         if error <= self.retry_tolerance:
-            return "done"
+            return 0.0
         self.current_retry += 1
         if self.current_retry > self.max_retries:
             raise self.gcode.error("Too many retries")
-        return "retry"
+        return error
 
 
 class ZTilt:
@@ -193,6 +196,7 @@ class ZTilt:
         z_offset = offsets[2]
         logging.info("Calculating bed tilt with: %s", positions)
         params = {"x_adjust": 0.0, "y_adjust": 0.0, "z_adjust": z_offset}
+
         # Perform coordinate descent
         def adjusted_height(pos, params):
             x, y, z = pos

@@ -111,7 +111,7 @@ class CommandWrapper:
         if cmd_queue is None:
             cmd_queue = serial.get_default_command_queue()
         self._cmd_queue = cmd_queue
-        self._msgtag = msgparser.lookup_msgtag(msgformat) & 0xFFFFFFFF
+        self._msgtag = msgparser.lookup_msgid(msgformat) & 0xFFFFFFFF
 
     def send(self, data=(), minclock=0, reqclock=0):
         cmd = self._cmd.encode(data)
@@ -132,9 +132,9 @@ class CommandWrapper:
 
 class MCU_trsync:
     REASON_ENDSTOP_HIT = 1
-    REASON_COMMS_TIMEOUT = 2
-    REASON_HOST_REQUEST = 3
-    REASON_PAST_END_TIME = 4
+    REASON_HOST_REQUEST = 2
+    REASON_PAST_END_TIME = 3
+    REASON_COMMS_TIMEOUT = 4
 
     def __init__(self, mcu, trdispatch):
         self._mcu = mcu
@@ -236,7 +236,7 @@ class MCU_trsync:
             if tc is not None:
                 self._trigger_completion = None
                 reason = params["trigger_reason"]
-                is_failure = reason == self.REASON_COMMS_TIMEOUT
+                is_failure = reason >= self.REASON_COMMS_TIMEOUT
                 self._reactor.async_complete(tc, is_failure)
         elif self._home_end_clock is not None:
             clock = self._mcu.clock32_to_clock64(params["clock"])
@@ -363,8 +363,9 @@ class TriggerDispatch:
         ffi_main, ffi_lib = chelper.get_ffi()
         ffi_lib.trdispatch_stop(self._trdispatch)
         res = [trsync.stop() for trsync in self._trsyncs]
-        if any([r == MCU_trsync.REASON_COMMS_TIMEOUT for r in res]):
-            return MCU_trsync.REASON_COMMS_TIMEOUT
+        err_res = [r for r in res if r >= MCU_trsync.REASON_COMMS_TIMEOUT]
+        if err_res:
+            return err_res[0]
         return res[0]
 
 
@@ -443,8 +444,9 @@ class MCU_endstop:
         self._dispatch.wait_end(home_end_time)
         self._home_cmd.send([self._oid, 0, 0, 0, 0, 0, 0, 0])
         res = self._dispatch.stop()
-        if res == MCU_trsync.REASON_COMMS_TIMEOUT:
-            return -1.0
+        if res >= MCU_trsync.REASON_COMMS_TIMEOUT:
+            cmderr = self._mcu.get_printer().command_error
+            raise cmderr("Communication timeout during homing")
         if res != MCU_trsync.REASON_ENDSTOP_HIT:
             return 0.0
         if self._mcu.is_fileoutput():
@@ -733,7 +735,9 @@ class MCU:
     error = error
 
     def __init__(self, config, clocksync):
+        self._config = config
         self._printer = printer = config.get_printer()
+        self.danger_options = printer.lookup_object("danger_options")
         self.gcode = printer.lookup_object("gcode")
         self._clocksync = clocksync
         self._reactor = printer.get_reactor()
@@ -742,7 +746,9 @@ class MCU:
             self._name = self._name[4:]
         # Serial port
         wp = "mcu '%s': " % (self._name)
-        self._serial = serialhdl.SerialReader(self._reactor, warn_prefix=wp)
+        self._serial = serialhdl.SerialReader(
+            self._reactor, warn_prefix=wp, mcu=self
+        )
         self._baud = 0
         self._canbus_iface = None
         canbus_uuid = config.get("canbus_uuid", None)
@@ -762,9 +768,8 @@ class MCU:
         restart_methods = [None, "arduino", "cheetah", "command", "rpi_usb"]
         self._restart_method = "command"
         if self._baud:
-            rmethods = {m: m for m in restart_methods}
             self._restart_method = config.getchoice(
-                "restart_method", rmethods, None
+                "restart_method", restart_methods, None
             )
         self._reset_cmd = self._config_reset_cmd = None
         self._is_mcu_bridge = False
@@ -795,6 +800,32 @@ class MCU:
         self._mcu_tick_avg = 0.0
         self._mcu_tick_stddev = 0.0
         self._mcu_tick_awake = 0.0
+
+        # noncritical mcus
+        self.is_non_critical = config.getboolean("is_non_critical", False)
+        if self.is_non_critical and self.get_name() == "mcu":
+            raise error("Primary MCU cannot be marked as non-critical!")
+        if self.is_non_critical:
+            self.non_critical_recon_timer = self._reactor.register_timer(
+                self.non_critical_recon_event
+            )
+            if canbus_uuid:
+                raise error("CAN MCUs can't be non-critical yet!")
+        self.non_critical_disconnected = False
+        self._non_critical_reconnect_event_name = (
+            f"danger:non_critical_mcu_{self.get_name()}:reconnected"
+        )
+        self._non_critical_disconnect_event_name = (
+            f"danger:non_critical_mcu_{self.get_name()}:disconnected"
+        )
+        self.reconnect_interval = (
+            config.getfloat("reconnect_interval", 2.0) + 0.12
+        )  # add small change to not collide with other events
+        self._cached_init_state = False
+        self._oid_count_post_inits = 0
+        self._config_cmds_post_inits = []
+        self._init_cmds_post_inits = []
+        self._restart_cmds_post_inits = []
         # Register handlers
         printer.register_event_handler(
             "klippy:firmware_restart", self._firmware_restart
@@ -843,13 +874,13 @@ class MCU:
         if (
             msg.startswith("ADC out of range")
             or msg.startswith("Thermocouple reader fault")
-        ) and not get_danger_options.adc_ignore_limits:
+        ) and not get_danger_options().temp_ignore_limits:
             pheaters = self._printer.lookup_object("heaters")
             heaters = [
                 pheaters.lookup_heater(n) for n in pheaters.available_heaters
             ]
             for heater in heaters:
-                if heater.is_adc_faulty():
+                if hasattr(heater, "is_adc_faulty") and heater.is_adc_faulty():
                     append_msgs.append(
                         {
                             "heater": heater.name,
@@ -868,7 +899,7 @@ class MCU:
             ]
             for sensor_name in sensor_names:
                 sensor = self._printer.lookup_object(sensor_name)
-                if sensor.is_adc_faulty():
+                if hasattr(sensor, "is_adc_faulty") and sensor.is_adc_faulty():
                     append_msgs.append(
                         {
                             sensor_name.split(" ")[0]: sensor.name,
@@ -883,7 +914,7 @@ class MCU:
         )
 
     def _handle_starting(self, params):
-        if not self._is_shutdown:
+        if not self._is_shutdown and not self.is_non_critical:
             self._printer.invoke_async_shutdown(
                 "MCU '%s' spontaneous restart" % (self._name,)
             )
@@ -923,23 +954,55 @@ class MCU:
 
             self.estimated_print_time = dummy_estimated_print_time
 
+    def handle_non_critical_disconnect(self):
+        self.non_critical_disconnected = True
+        self._clocksync.disconnect()
+        self._disconnect()
+        self._reactor.update_timer(
+            self.non_critical_recon_timer, self._reactor.NOW
+        )
+        self._printer.send_event(self._non_critical_disconnect_event_name)
+        self.gcode.respond_info(f"mcu: '{self._name}' disconnected!", log=True)
+
+    def non_critical_recon_event(self, eventtime):
+        success = self.recon_mcu()
+        if success:
+            self.gcode.respond_info(
+                f"mcu: '{self._name}' reconnected!", log=True
+            )
+            return self._reactor.NEVER
+        else:
+            return eventtime + self.reconnect_interval
+
     def _send_config(self, prev_crc):
+        if not self._cached_init_state:
+            # first time config, we haven't created callback oids yet
+            # so save the oid count for state reset later
+            self._oid_count_post_inits = self._oid_count
+            self._config_cmds_post_inits = self._config_cmds.copy()
+            self._init_cmds_post_inits = self._init_cmds.copy()
+            self._restart_cmds_post_inits = self._restart_cmds.copy()
+            self._cached_init_state = True
         # Build config commands
         for cb in self._config_callbacks:
             cb()
-        self._config_cmds.insert(
+
+        local_config_cmds = self._config_cmds.copy()
+
+        local_config_cmds.insert(
             0, "allocate_oids count=%d" % (self._oid_count,)
         )
+
         # Resolve pin names
         ppins = self._printer.lookup_object("pins")
         pin_resolver = ppins.get_pin_resolver(self._name)
-        for cmdlist in (self._config_cmds, self._restart_cmds, self._init_cmds):
+        for cmdlist in (local_config_cmds, self._restart_cmds, self._init_cmds):
             for i, cmd in enumerate(cmdlist):
                 cmdlist[i] = pin_resolver.update_command(cmd)
         # Calculate config CRC
-        encoded_config = "\n".join(self._config_cmds).encode()
+        encoded_config = "\n".join(local_config_cmds).encode()
         config_crc = zlib.crc32(encoded_config) & 0xFFFFFFFF
-        self.add_config_cmd("finalize_config crc=%d" % (config_crc,))
+        local_config_cmds.append("finalize_config crc=%d" % (config_crc,))
         if prev_crc is not None and config_crc != prev_crc:
             self._check_restart("CRC mismatch")
             raise error("MCU '%s' CRC does not match config" % (self._name,))
@@ -950,7 +1013,7 @@ class MCU:
                 logging.info(
                     "Sending MCU '%s' printer configuration...", self._name
                 )
-                for c in self._config_cmds:
+                for c in local_config_cmds:
                     self._serial.send(c)
             else:
                 for c in self._restart_cmds:
@@ -990,11 +1053,11 @@ class MCU:
 
     def _log_info(self):
         msgparser = self._serial.get_msgparser()
+        app = msgparser.get_app_info()
         message_count = len(msgparser.get_messages())
         version, build_versions = msgparser.get_version_info()
         log_info = [
-            "Loaded MCU '%s' %d commands (%s / %s)"
-            % (self._name, message_count, version, build_versions),
+            f"Loaded MCU '{self._name}' {message_count} commands ({app} {version} / {build_versions})",
             "MCU '%s' config: %s"
             % (
                 self._name,
@@ -1005,7 +1068,32 @@ class MCU:
         ]
         return "\n".join(log_info)
 
+    def recon_mcu(self):
+        res = self._mcu_identify()
+        if not res:
+            return False
+        self.reset_to_initial_state()
+        self.non_critical_disconnected = False
+        self._connect()
+        self._printer.send_event(self._non_critical_reconnect_event_name)
+        return True
+
+    def reset_to_initial_state(self):
+        if self._cached_init_state:
+            self._oid_count = self._oid_count_post_inits
+            self._config_cmds = self._config_cmds_post_inits.copy()
+            self._init_cmds = self._init_cmds_post_inits.copy()
+            self._restart_cmds = self._restart_cmds_post_inits.copy()
+        self._reserved_move_slots = 0
+        self._steppersync = None
+
     def _connect(self):
+        if self.non_critical_disconnected:
+            self._reactor.update_timer(
+                self.non_critical_recon_timer,
+                self._reactor.NOW + self.reconnect_interval,
+            )
+            return
         config_params = self._send_get_config()
         if not config_params["is_config"]:
             if self._restart_method == "rpi_usb":
@@ -1045,7 +1133,24 @@ class MCU:
         log_info = self._log_info() + "\n" + move_msg
         self._printer.set_rollover_info(self._name, log_info, log=False)
 
+    def _check_serial_exists(self):
+        # if self._canbus_iface is not None:
+        #     cbid = self._printer.lookup_object("canbus_ids")
+        #     nodeid = cbid.get_nodeid(self._serialport)
+        #     # self._serial.check_canbus_connect is not functional yet
+        #     return self._serial.check_canbus_connect(
+        #         self._serialport, nodeid, self._canbus_iface
+        #     )
+        # else:
+        rts = self._restart_method != "cheetah"
+        return self._serial.check_connect(self._serialport, self._baud, rts)
+
     def _mcu_identify(self):
+        if self.is_non_critical and not self._check_serial_exists():
+            self.non_critical_disconnected = True
+            return False
+        else:
+            self.non_critical_disconnected = False
         if self.is_fileoutput():
             self._connect_file()
         else:
@@ -1093,13 +1198,16 @@ class MCU:
             self._printer.register_event_handler(
                 "klippy:firmware_restart", self._firmware_restart_bridge
             )
+        app = msgparser.get_app_info()
         version, build_versions = msgparser.get_version_info()
+        self._get_status_info["app"] = app
         self._get_status_info["mcu_version"] = version
         self._get_status_info["mcu_build_versions"] = build_versions
         self._get_status_info["mcu_constants"] = msgparser.get_constants()
         self.register_response(self._handle_shutdown, "shutdown")
         self.register_response(self._handle_shutdown, "is_shutdown")
         self.register_response(self._handle_mcu_stats, "stats")
+        return True
 
     def _ready(self):
         if self.is_fileoutput():
@@ -1164,6 +1272,12 @@ class MCU:
 
     def get_name(self):
         return self._name
+
+    def get_non_critical_reconnect_event_name(self):
+        return self._non_critical_reconnect_event_name
+
+    def get_non_critical_disconnect_event_name(self):
+        return self._non_critical_disconnect_event_name
 
     def register_response(self, cb, msg, oid=None):
         self._serial.register_response(cb, msg, oid)
@@ -1266,7 +1380,9 @@ class MCU:
         chelper.run_hub_ctrl(1)
 
     def _firmware_restart(self, force=False):
-        if self._is_mcu_bridge and not force:
+        if (
+            self._is_mcu_bridge and not force
+        ) or self.non_critical_disconnected:
             return
         if self._restart_method == "rpi_usb":
             self._restart_rpi_usb()
@@ -1320,6 +1436,9 @@ class MCU:
             or self._is_timeout
         ):
             return
+        if self.is_non_critical:
+            self.handle_non_critical_disconnect()
+            return
         self._is_timeout = True
         logging.info(
             "Timeout with MCU '%s' (eventtime=%f)", self._name, eventtime
@@ -1361,16 +1480,12 @@ class MCU:
 
 
 Common_MCU_errors = {
-    (
-        "Timer too close",
-    ): """
+    ("Timer too close",): """
 This often indicates the host computer is overloaded. Check
 for other processes consuming excessive CPU time, high swap
 usage, disk errors, overheating, unstable voltage, or
 similar system problems on the host computer.""",
-    (
-        "Missed scheduling of next ",
-    ): """
+    ("Missed scheduling of next ",): """
 This is generally indicative of an intermittent
 communication failure between micro-controller and host.""",
     (
@@ -1386,9 +1501,7 @@ its configured min_temp or max_temp.""",
 This generally occurs when the micro-controller has been
 requested to step at a rate higher than it is capable of
 obtaining.""",
-    (
-        "Command request",
-    ): """
+    ("Command request",): """
 This generally occurs in response to an M112 G-Code command
 or in response to an internal error in the host software.""",
 }

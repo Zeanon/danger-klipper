@@ -5,6 +5,7 @@
 # This file may be distributed under the terms of the GNU GPLv3 license.
 import logging
 import pins
+import math
 from . import manual_probe
 
 HINT_TIMEOUT = """
@@ -46,7 +47,7 @@ class PrinterProbe:
         self.sample_retract_dist = config.getfloat(
             "sample_retract_dist", 2.0, above=0.0
         )
-        atypes = {"median": "median", "average": "average"}
+        atypes = ["median", "average"]
         self.samples_result = config.getchoice(
             "samples_result", atypes, "average"
         )
@@ -109,7 +110,7 @@ class PrinterProbe:
     def _handle_home_rails_begin(self, homing_state, rails):
         endstops = [es for rail in rails for es, name in rail.get_endstops()]
         if self.mcu_probe in endstops:
-            self.multi_probe_begin()
+            self.multi_probe_begin(always_restore_toolhead=True)
 
     def _handle_home_rails_end(self, homing_state, rails):
         endstops = [es for rail in rails for es, name in rail.get_endstops()]
@@ -122,8 +123,11 @@ class PrinterProbe:
         except:
             logging.exception("Multi-probe end")
 
-    def multi_probe_begin(self):
-        self.mcu_probe.multi_probe_begin()
+    def multi_probe_begin(self, always_restore_toolhead=False):
+        try:
+            self.mcu_probe.multi_probe_begin(always_restore_toolhead)
+        except:
+            self.mcu_probe.multi_probe_begin()
         self.multi_probe_pending = True
 
     def multi_probe_end(self):
@@ -192,6 +196,12 @@ class PrinterProbe:
         # even number of samples
         return self._calc_mean(z_sorted[middle - 1 : middle + 1])
 
+    @property
+    def _drop_first_result(self):
+        if hasattr(self, "drop_first_result"):
+            return self.drop_first_result
+        return False
+
     def run_probe(self, gcmd):
         speed = gcmd.get_float("PROBE_SPEED", self.speed, above=0.0)
         lift_speed = self.get_lift_speed(gcmd)
@@ -208,7 +218,7 @@ class PrinterProbe:
         samples_result = gcmd.get("SAMPLES_RESULT", self.samples_result)
         must_notify_multi_probe = not self.multi_probe_pending
         if must_notify_multi_probe:
-            self.multi_probe_begin()
+            self.multi_probe_begin(always_restore_toolhead=True)
         probexy = self.printer.lookup_object("toolhead").get_position()[:2]
         retries = 0
         positions = []
@@ -217,7 +227,7 @@ class PrinterProbe:
         while len(positions) < sample_count:
             # Probe position
             pos = self._probe(speed)
-            if self.drop_first_result and first_probe:
+            if self._drop_first_result and first_probe:
                 first_probe = False
                 liftpos = [None, None, pos[2] + sample_retract_dist]
                 self._move(liftpos, lift_speed)
@@ -290,14 +300,14 @@ class PrinterProbe:
             )
         )
         # Probe bed sample_count times
-        self.multi_probe_begin()
+        self.multi_probe_begin(always_restore_toolhead=True)
         positions = []
 
         first_probe = True
         while len(positions) < sample_count:
             # Probe position
             pos = self._probe(speed)
-            if self.drop_first_result and first_probe:
+            if self._drop_first_result and first_probe:
                 first_probe = False
                 liftpos = [None, None, pos[2] + sample_retract_dist]
                 self._move(liftpos, lift_speed)
@@ -421,7 +431,7 @@ class ProbeEndstopWrapper:
         self.deactivate_gcode.run_gcode_from_command()
         if toolhead.get_position()[:3] != start_pos[:3]:
             raise self.printer.command_error(
-                "Toolhead moved during probe activate_gcode script"
+                "Toolhead moved during probe deactivate_gcode script"
             )
 
     def _lower_probe(self):
@@ -430,7 +440,7 @@ class ProbeEndstopWrapper:
         self.activate_gcode.run_gcode_from_command()
         if toolhead.get_position()[:3] != start_pos[:3]:
             raise self.printer.command_error(
-                "Toolhead moved during probe deactivate_gcode script"
+                "Toolhead moved during probe activate_gcode script"
             )
 
     def multi_probe_begin(self):
@@ -484,6 +494,12 @@ class ProbePointsHelper:
             )
         def_move_z = config.getfloat("horizontal_move_z", 5.0)
         self.default_horizontal_move_z = def_move_z
+        self.adaptive_horizontal_move_z = config.getboolean(
+            "adaptive_horizontal_move_z", False
+        )
+        self.min_horizontal_move_z = config.getfloat(
+            "min_horizontal_move_z", 1.0
+        )
         self.speed = config.getfloat("speed", 50.0, above=0.0)
         self.use_offsets = False
         # Internal probing state
@@ -510,7 +526,7 @@ class ProbePointsHelper:
     def get_lift_speed(self):
         return self.lift_speed
 
-    def _move_next(self):
+    def _lift_toolhead(self):
         toolhead = self.printer.lookup_object("toolhead")
         # Lift toolhead
         speed = self.lift_speed
@@ -518,13 +534,30 @@ class ProbePointsHelper:
             # Use full speed to first probe position
             speed = self.speed
         toolhead.manual_move([None, None, self.horizontal_move_z], speed)
+
+    def _move_next(self):
+        toolhead = self.printer.lookup_object("toolhead")
         # Check if done probing
+        done = False
         if len(self.results) >= len(self.probe_points):
             toolhead.get_last_move_time()
             res = self.finalize_callback(self.probe_offsets, self.results)
-            if res != "retry":
-                return True
+            if isinstance(res, (int, float)):
+                if res == 0:
+                    done = True
+                if self.adaptive_horizontal_move_z:
+                    # then res is error
+                    error = math.ceil(res)
+                    self.horizontal_move_z = max(
+                        error + self.probe_offsets[2],
+                        self.min_horizontal_move_z,
+                    )
+            elif res != "retry":
+                done = True
             self.results = []
+        self._lift_toolhead()
+        if done:
+            return True
         # Move to next XY probe point
         nextpos = list(self.probe_points[len(self.results)])
         if self.use_offsets:
@@ -539,8 +572,10 @@ class ProbePointsHelper:
         probe = self.printer.lookup_object("probe", None)
         method = gcmd.get("METHOD", "automatic").lower()
         self.results = []
+
         def_move_z = self.default_horizontal_move_z
         self.horizontal_move_z = gcmd.get_float("HORIZONTAL_MOVE_Z", def_move_z)
+
         if probe is None or method != "automatic":
             # Manual probe
             self.lift_speed = self.speed

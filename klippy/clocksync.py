@@ -3,7 +3,7 @@
 # Copyright (C) 2016-2018  Kevin O'Connor <kevin@koconnor.net>
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
-import logging, math
+import logging, math, traceback
 
 RTT_AGE = 0.000010 / (60.0 * 60.0)
 DECAY = 1.0 / 30.0
@@ -28,6 +28,9 @@ class ClockSync:
         self.clock_avg = self.clock_covariance = 0.0
         self.prediction_variance = 0.0
         self.last_prediction_time = 0.0
+
+    def disconnect(self):
+        self.reactor.update_timer(self.get_clock_timer, self.reactor.NEVER)
 
     def connect(self, serial):
         self.serial = serial
@@ -237,10 +240,22 @@ class SecondarySync(ClockSync):
 
     # clock frequency conversions
     def print_time_to_clock(self, print_time):
+        if self.clock_adj[1] == 1.0:
+            logging.warning(
+                "Clock not yet synchronized, clock is untrustworthy"
+            )
+            for line in traceback.format_stack():
+                logging.warning(line.strip())
         adjusted_offset, adjusted_freq = self.clock_adj
         return int((print_time - adjusted_offset) * adjusted_freq)
 
     def clock_to_print_time(self, clock):
+        if self.clock_adj[1] == 1.0:
+            logging.warning(
+                "Clock not yet synchronized, print time is untrustworthy"
+            )
+            for line in traceback.format_stack():
+                logging.warning(line.strip())
         adjusted_offset, adjusted_freq = self.clock_adj
         return clock / adjusted_freq + adjusted_offset
 

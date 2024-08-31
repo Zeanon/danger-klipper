@@ -60,7 +60,7 @@ class MPU9250:
     def __init__(self, config):
         self.printer = config.get_printer()
         adxl345.AccelCommandHelper(config, self)
-        self.axes_map = adxl345.read_axes_map(config)
+        self.axes_map = adxl345.read_axes_map(config, SCALE, SCALE, SCALE)
         self.data_rate = config.getint("rate", 4000)
         if self.data_rate not in SAMPLE_RATE_DIVS:
             raise config.error("Invalid rate parameter: %d" % (self.data_rate,))
@@ -105,6 +105,12 @@ class MPU9250:
             "query_mpu9250_status oid=%c", oid=self.oid, cq=cmdqueue
         )
 
+    def check_connected(self):
+        if self.mcu.non_critical_disconnected:
+            raise self.printer.command_error(
+                f"MPU: {self.name} could not connect because mcu: {self.mcu.get_name()} is non_critical_disconnected!"
+            )
+
     def read_reg(self, reg):
         params = self.i2c.i2c_read([reg], 1)
         return bytearray(params["response"])[0]
@@ -113,6 +119,7 @@ class MPU9250:
         self.i2c.i2c_write([reg, val & 0xFF], minclock=minclock)
 
     def start_internal_client(self):
+        self.check_connected()
         aqh = adxl345.AccelQueryHelper(self.printer)
         self.batch_bulk.add_client(aqh.handle_batch)
         return aqh

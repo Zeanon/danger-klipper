@@ -96,7 +96,10 @@ class pca9685_pwm:
             self._is_enable = is_enable
             self._reactor.register_async_callback(
                 (
-                    lambda e, s=self, pt=print_time, ie=is_enable: s._replicape.note_pwm_enable(
+                    lambda e,
+                    s=self,
+                    pt=print_time,
+                    ie=is_enable: s._replicape.note_pwm_enable(
                         pt, s._channel, ie
                     )
                 )
@@ -200,7 +203,7 @@ class Replicape:
         printer = config.get_printer()
         ppins = printer.lookup_object("pins")
         ppins.register_chip("replicape", self)
-        revisions = {"B3": "B3"}
+        revisions = ["B3"]
         config.getchoice("revision", revisions)
         self.host_mcu = mcu.get_printer_mcu(printer, config.get("host_mcu"))
         # Setup enable pin
