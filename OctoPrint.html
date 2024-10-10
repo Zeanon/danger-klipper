@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="G-Codes.html">
+        <link rel="prev" href="Installation.html">
       
       
-        <link rel="next" href="Status_Reference.html">
+        <link rel="next" href="Config_Reference.html">
       
       
       <link rel="icon" href="img/favicon.ico">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Commands templates - Danger Klipper documentation</title>
+        <title>OctoPrint for Klipper - Danger Klipper documentation</title>
       
     
     
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commands-templates" class="md-skip">
+        <a href="#octoprint-for-klipper" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Commands templates
+              OctoPrint for Klipper
             
           </span>
         </div>
@@ -462,17 +462,19 @@
                 
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" checked>
         
           
           <label class="md-nav__link" for="__nav_8_1" id="__nav_8_1_label" tabindex="0">
@@ -486,7 +488,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8_1">
             <span class="md-nav__icon md-icon"></span>
             Installation
@@ -518,10 +520,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="OctoPrint.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    OctoPrint for Klipper
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="OctoPrint.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -530,6 +552,53 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-with-octopi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install with OctoPi
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-with-kiauh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installing with KIAUH
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-octoprint-to-use-klipper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring OctoPrint to use Klipper
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -991,19 +1060,17 @@
                 
   
   
-    
   
   
-  
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8" >
         
           
           <label class="md-nav__link" for="__nav_8_8" id="__nav_8_8_label" tabindex="0">
@@ -1017,7 +1084,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_8">
             <span class="md-nav__icon md-icon"></span>
             Command templates
@@ -1028,30 +1095,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Commands templates
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="Command_Templates.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="Command_Templates.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1060,149 +1107,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#g-code-macro-naming" class="md-nav__link">
-    <span class="md-ellipsis">
-      G-Code Macro Naming
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#formatting-of-g-code-in-the-config" class="md-nav__link">
-    <span class="md-ellipsis">
-      Formatting of G-Code in the config
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-a-description-to-your-macro" class="md-nav__link">
-    <span class="md-ellipsis">
-      Add a description to your macro
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#saverestore-state-for-g-code-moves" class="md-nav__link">
-    <span class="md-ellipsis">
-      Save/Restore state for G-Code moves
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#template-expansion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Template expansion
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Template expansion">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#macro-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Macro parameters
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-rawparams-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      The "rawparams" variable
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-printer-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      The "printer" Variable
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Actions
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      Variables
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#delayed-gcodes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Delayed Gcodes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#menu-templates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Menu templates
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#save-variables-to-disk" class="md-nav__link">
-    <span class="md-ellipsis">
-      Save Variables to disk
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1942,123 +1846,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#g-code-macro-naming" class="md-nav__link">
+  <a href="#install-with-octopi" class="md-nav__link">
     <span class="md-ellipsis">
-      G-Code Macro Naming
+      Install with OctoPi
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#formatting-of-g-code-in-the-config" class="md-nav__link">
+  <a href="#installing-with-kiauh" class="md-nav__link">
     <span class="md-ellipsis">
-      Formatting of G-Code in the config
+      Installing with KIAUH
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#add-a-description-to-your-macro" class="md-nav__link">
+  <a href="#configuring-octoprint-to-use-klipper" class="md-nav__link">
     <span class="md-ellipsis">
-      Add a description to your macro
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#saverestore-state-for-g-code-moves" class="md-nav__link">
-    <span class="md-ellipsis">
-      Save/Restore state for G-Code moves
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#template-expansion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Template expansion
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Template expansion">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#macro-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Macro parameters
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-rawparams-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      The "rawparams" variable
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-printer-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      The "printer" Variable
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Actions
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      Variables
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#delayed-gcodes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Delayed Gcodes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#menu-templates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Menu templates
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#save-variables-to-disk" class="md-nav__link">
-    <span class="md-ellipsis">
-      Save Variables to disk
+      Configuring OctoPrint to use Klipper
     </span>
   </a>
   
@@ -2082,302 +1890,64 @@
   
 
 
-<h1 id="commands-templates">Commands templates<a class="headerlink" href="#commands-templates" title="Permanent link">&para;</a></h1>
-<p>This document provides information on implementing G-Code command
-sequences in gcode_macro (and similar) config sections.</p>
-<h2 id="g-code-macro-naming">G-Code Macro Naming<a class="headerlink" href="#g-code-macro-naming" title="Permanent link">&para;</a></h2>
-<p>Case is not important for the G-Code macro name - MY_MACRO and
-my_macro will evaluate the same and may be called in either upper or
-lower case. If any numbers are used in the macro name then they must
-all be at the end of the name (eg, TEST_MACRO25 is valid, but
-MACRO25_TEST3 is not).</p>
-<h2 id="formatting-of-g-code-in-the-config">Formatting of G-Code in the config<a class="headerlink" href="#formatting-of-g-code-in-the-config" title="Permanent link">&para;</a></h2>
-<p>Indentation is important when defining a macro in the config file. To
-specify a multi-line G-Code sequence it is important for each line to
-have proper indentation. For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro blink_led]
-gcode:
-  SET_PIN PIN=my_led VALUE=1
-  G4 P2000
-  SET_PIN PIN=my_led VALUE=0
+<h1 id="octoprint-for-klipper">OctoPrint for Klipper<a class="headerlink" href="#octoprint-for-klipper" title="Permanent link">&para;</a></h1>
+<p>Klipper has a few options for its front ends, Octoprint was the first
+and original front end for Klipper. This document will give
+a brief overview of installing with this option.</p>
+<h2 id="install-with-octopi">Install with OctoPi<a class="headerlink" href="#install-with-octopi" title="Permanent link">&para;</a></h2>
+<p>Start by installing <a href="https://github.com/guysoft/OctoPi">OctoPi</a> on the
+Raspberry Pi computer. Use OctoPi v0.17.0 or later - see the
+<a href="https://github.com/guysoft/OctoPi/releases">OctoPi releases</a> for
+release information.</p>
+<p>One should verify that OctoPi boots and that the
+OctoPrint web server works. After connecting to the OctoPrint web
+page, follow the prompt to upgrade OctoPrint if needed.</p>
+<p>After installing OctoPi and upgrading OctoPrint, it will be necessary
+to ssh into the target machine to run a handful of system commands.</p>
+<p>Start by running these commands on your host device:</p>
+<p><strong>If you do not have git installed, please do so with:</strong></p>
+<div class="highlight"><pre><span></span><code>sudo apt install git
 </code></pre></div>
 
-<p>Note how the <code>gcode:</code> config option always starts at the beginning of
-the line and subsequent lines in the G-Code macro never start at the
-beginning.</p>
-<h2 id="add-a-description-to-your-macro">Add a description to your macro<a class="headerlink" href="#add-a-description-to-your-macro" title="Permanent link">&para;</a></h2>
-<p>To help identify the functionality a short description can be added.
-Add <code>description:</code> with a short text to describe the functionality.
-Default is "G-Code macro" if not specified.
-For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro blink_led]
-description: Blink my_led one time
-gcode:
-  SET_PIN PIN=my_led VALUE=1
-  G4 P2000
-  SET_PIN PIN=my_led VALUE=0
+<p>then proceed:</p>
+<div class="highlight"><pre><span></span><code>cd ~
+git clone https://github.com/Klipper3d/klipper
+./klipper/scripts/install-octopi.sh
 </code></pre></div>
 
-<p>The terminal will display the description when you use the <code>HELP</code> command or the autocomplete function.</p>
-<h2 id="saverestore-state-for-g-code-moves">Save/Restore state for G-Code moves<a class="headerlink" href="#saverestore-state-for-g-code-moves" title="Permanent link">&para;</a></h2>
-<p>Unfortunately, the G-Code command language can be challenging to use.
-The standard mechanism to move the toolhead is via the <code>G1</code> command
-(the <code>G0</code> command is an alias for <code>G1</code> and it can be used
-interchangeably with it). However, this command relies on the "G-Code
-parsing state" setup by <code>M82</code>, <code>M83</code>, <code>G90</code>, <code>G91</code>, <code>G92</code>, and
-previous <code>G1</code> commands.  When creating a G-Code macro it is a good
-idea to always explicitly set the G-Code parsing state prior to
-issuing a <code>G1</code> command. (Otherwise, there is a risk the <code>G1</code> command
-will make an undesirable request.)</p>
-<p>A common way to accomplish that is to wrap the <code>G1</code> moves in
-<code>SAVE_GCODE_STATE</code>, <code>G91</code>, and <code>RESTORE_GCODE_STATE</code>. For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro MOVE_UP]
-gcode:
-  SAVE_GCODE_STATE NAME=my_move_up_state
-  G91
-  G1 Z10 F300
-  RESTORE_GCODE_STATE NAME=my_move_up_state
+<p>The above will download Klipper, install the needed system dependencies,
+setup Klipper to run at system startup, and start the Klipper host
+software. It will require an internet connection and it may take a few
+minutes to complete.</p>
+<h2 id="installing-with-kiauh">Installing with KIAUH<a class="headerlink" href="#installing-with-kiauh" title="Permanent link">&para;</a></h2>
+<p>KIAUH can be used to install OctoPrint on a variety of Linux based systems
+that run a form of Debian. More information can be found
+at <a href="https://github.com/dw-0/kiauh">https://github.com/dw-0/kiauh</a></p>
+<h2 id="configuring-octoprint-to-use-klipper">Configuring OctoPrint to use Klipper<a class="headerlink" href="#configuring-octoprint-to-use-klipper" title="Permanent link">&para;</a></h2>
+<p>The OctoPrint web server needs to be configured to communicate with the Klipper
+host software. Using a web browser, login to the OctoPrint web page and then
+configure the following items:</p>
+<p>Navigate to the Settings tab (the wrench icon at the top of the page).
+Under "Serial Connection" in "Additional serial ports" add:</p>
+<div class="highlight"><pre><span></span><code>~/printer_data/comms/klippy.sock
 </code></pre></div>
 
-<p>The <code>G91</code> command places the G-Code parsing state into "relative move
-mode" and the <code>RESTORE_GCODE_STATE</code> command restores the state to what
-it was prior to entering the macro. Be sure to specify an explicit
-speed (via the <code>F</code> parameter) on the first <code>G1</code> command.</p>
-<h2 id="template-expansion">Template expansion<a class="headerlink" href="#template-expansion" title="Permanent link">&para;</a></h2>
-<p>The gcode_macro <code>gcode:</code> config section is evaluated using the Jinja2
-template language. One can evaluate expressions at run-time by
-wrapping them in <code>{ }</code> characters or use conditional statements
-wrapped in <code>{% %}</code>. See the
-<a href="http://jinja.pocoo.org/docs/2.10/templates/">Jinja2 documentation</a>
-for further information on the syntax.</p>
-<p>An example of a complex macro:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro clean_nozzle]
-gcode:
-  {% set wipe_count = 8 %}
-  SAVE_GCODE_STATE NAME=clean_nozzle_state
-  G90
-  G0 Z15 F300
-  {% for wipe in range(wipe_count) %}
-    {% for coordinate in [(275, 4),(235, 4)] %}
-      G0 X{coordinate[0]} Y{coordinate[1] + 0.25 * wipe} Z9.7 F12000
-    {% endfor %}
-  {% endfor %}
-  RESTORE_GCODE_STATE NAME=clean_nozzle_state
-</code></pre></div>
-
-<h3 id="macro-parameters">Macro parameters<a class="headerlink" href="#macro-parameters" title="Permanent link">&para;</a></h3>
-<p>It is often useful to inspect parameters passed to the macro when
-it is called. These parameters are available via the <code>params</code>
-pseudo-variable. For example, if the macro:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro SET_PERCENT]
-gcode:
-  M117 Now at { params.VALUE|float * 100 }%
-</code></pre></div>
-
-<p>were invoked as <code>SET_PERCENT VALUE=.2</code> it would evaluate to <code>M117 Now
-at 20%</code>. Note that parameter names are always in upper-case when
-evaluated in the macro and are always passed as strings. If performing
-math then they must be explicitly converted to integers or floats.</p>
-<p>It's common to use the Jinja2 <code>set</code> directive to use a default
-parameter and assign the result to a local name. For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro SET_BED_TEMPERATURE]
-gcode:
-  {% set bed_temp = params.TEMPERATURE|default(40)|float %}
-  M140 S{bed_temp}
-</code></pre></div>
-
-<h3 id="the-rawparams-variable">The "rawparams" variable<a class="headerlink" href="#the-rawparams-variable" title="Permanent link">&para;</a></h3>
-<p>The full unparsed parameters for the running macro can be access via the
-<code>rawparams</code> pseudo-variable.</p>
-<p>Note that this will include any comments that were part of the original command.</p>
-<p>See the <a href="https://github.com/DangerKlippers/danger-klipperblob/master/config/sample-macros.cfg">sample-macros.cfg</a> file for an example
-showing how to override the <code>M117</code> command using <code>rawparams</code>.</p>
-<h3 id="the-printer-variable">The "printer" Variable<a class="headerlink" href="#the-printer-variable" title="Permanent link">&para;</a></h3>
-<p>It is possible to inspect (and alter) the current state of the printer
-via the <code>printer</code> pseudo-variable. For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro slow_fan]
-gcode:
-  M106 S{ printer.fan.speed * 0.9 * 255}
-</code></pre></div>
-
-<p>Available fields are defined in the
-<a href="Status_Reference.html">Status Reference</a> document.</p>
-<p>Important! Macros are first evaluated in entirety and only then are
-the resulting commands executed. If a macro issues a command that
-alters the state of the printer, the results of that state change will
-not be visible during the evaluation of the macro. This can also
-result in subtle behavior when a macro generates commands that call
-other macros, as the called macro is evaluated when it is invoked
-(which is after the entire evaluation of the calling macro).</p>
-<p>By convention, the name immediately following <code>printer</code> is the name of
-a config section. So, for example, <code>printer.fan</code> refers to the fan
-object created by the <code>[fan]</code> config section. There are some
-exceptions to this rule - notably the <code>gcode_move</code> and <code>toolhead</code>
-objects. If the config section contains spaces in it, then one can
-access it via the <code>[ ]</code> accessor - for example:
-<code>printer["generic_heater my_chamber_heater"].temperature</code>.</p>
-<p>Note that the Jinja2 <code>set</code> directive can assign a local name to an
-object in the <code>printer</code> hierarchy. This can make macros more readable
-and reduce typing. For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro QUERY_HTU21D]
-gcode:
-    {% set sensor = printer[&quot;htu21d my_sensor&quot;] %}
-    M117 Temp:{sensor.temperature} Humidity:{sensor.humidity}
-</code></pre></div>
-
-<h2 id="actions">Actions<a class="headerlink" href="#actions" title="Permanent link">&para;</a></h2>
-<p>There are some commands available that can alter the state of the
-printer. For example, <code>{ action_emergency_stop() }</code> would cause the
-printer to go into a shutdown state. Note that these actions are taken
-at the time that the macro is evaluated, which may be a significant
-amount of time before the generated g-code commands are executed.</p>
-<p>Available "action" commands:</p>
-<ul>
-<li><code>action_respond_info(msg)</code>: Write the given <code>msg</code> to the
-  /tmp/printer pseudo-terminal. Each line of <code>msg</code> will be sent with a
-  "// " prefix.</li>
-<li><code>action_log(msg)</code>: Write the given msg to the klippy.log</li>
-<li><code>action_raise_error(msg)</code>: Abort the current macro (and any calling
-  macros) and write the given <code>msg</code> to the /tmp/printer
-  pseudo-terminal. The first line of <code>msg</code> will be sent with a "!! "
-  prefix and subsequent lines will have a "// " prefix.</li>
-<li><code>action_emergency_stop(msg)</code>: Transition the printer to a shutdown
-  state. The <code>msg</code> parameter is optional, it may be useful to describe
-  the reason for the shutdown.</li>
-<li><code>action_call_remote_method(method_name)</code>: Calls a method registered
-  by a remote client.  If the method takes parameters they should
-  be provided via keyword arguments, ie:
-  <code>action_call_remote_method("print_stuff", my_arg="hello_world")</code></li>
-</ul>
-<h2 id="variables">Variables<a class="headerlink" href="#variables" title="Permanent link">&para;</a></h2>
-<p>The SET_GCODE_VARIABLE command may be useful for saving state between
-macro calls. Variable names may not contain any upper case characters.
-For example:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro start_probe]
-variable_bed_temp: 0
-gcode:
-  # Save target temperature to bed_temp variable
-  SET_GCODE_VARIABLE MACRO=start_probe VARIABLE=bed_temp VALUE={printer.heater_bed.target}
-  # Disable bed heater
-  M140
-  # Perform probe
-  PROBE
-  # Call finish_probe macro at completion of probe
-  finish_probe
-
-[gcode_macro finish_probe]
-gcode:
-  # Restore temperature
-  M140 S{printer[&quot;gcode_macro start_probe&quot;].bed_temp}
-</code></pre></div>
-
-<p>Be sure to take the timing of macro evaluation and command execution
-into account when using SET_GCODE_VARIABLE.</p>
-<h2 id="delayed-gcodes">Delayed Gcodes<a class="headerlink" href="#delayed-gcodes" title="Permanent link">&para;</a></h2>
-<p>The [delayed_gcode] configuration option can be used to execute a delayed
-gcode sequence:</p>
-<div class="highlight"><pre><span></span><code>[delayed_gcode clear_display]
-gcode:
-  M117
-
-[gcode_macro load_filament]
-gcode:
- G91
- G1 E50
- G90
- M400
- M117 Load Complete!
- UPDATE_DELAYED_GCODE ID=clear_display DURATION=10
-</code></pre></div>
-
-<p>When the <code>load_filament</code> macro above executes, it will display a
-"Load Complete!" message after the extrusion is finished.  The
-last line of gcode enables the "clear_display" delayed_gcode, set
-to execute in 10 seconds.</p>
-<p>The <code>initial_duration</code> config option can be set to execute the
-delayed_gcode on printer startup.  The countdown begins when the
-printer enters the "ready" state.  For example, the below delayed_gcode
-will execute 5 seconds after the printer is ready, initializing
-the display with a "Welcome!" message:</p>
-<div class="highlight"><pre><span></span><code>[delayed_gcode welcome]
-initial_duration: 5.
-gcode:
-  M117 Welcome!
-</code></pre></div>
-
-<p>Its possible for a delayed gcode to repeat by updating itself in
-the gcode option:</p>
-<div class="highlight"><pre><span></span><code>[delayed_gcode report_temp]
-initial_duration: 2.
-gcode:
-  {action_respond_info(&quot;Extruder Temp: %.1f&quot; % (printer.extruder0.temperature))}
-  UPDATE_DELAYED_GCODE ID=report_temp DURATION=2
-</code></pre></div>
-
-<p>The above delayed_gcode will send "// Extruder Temp: [ex0_temp]" to
-Octoprint every 2 seconds.  This can be canceled with the following
-gcode:</p>
-<div class="highlight"><pre><span></span><code>UPDATE_DELAYED_GCODE ID=report_temp DURATION=0
-</code></pre></div>
-
-<h2 id="menu-templates">Menu templates<a class="headerlink" href="#menu-templates" title="Permanent link">&para;</a></h2>
-<p>If a <a href="Config_Reference.html#display">display config section</a> is enabled,
-then it is possible to customize the menu with
-<a href="Config_Reference.html#menu">menu</a> config sections.</p>
-<p>The following read-only attributes are available in menu templates:</p>
-<ul>
-<li><code>menu.width</code> - element width (number of display columns)</li>
-<li><code>menu.ns</code> - element namespace</li>
-<li><code>menu.event</code> - name of the event that triggered the script</li>
-<li><code>menu.input</code> - input value, only available in input script context</li>
-</ul>
-<p>The following actions are available in menu templates:</p>
-<ul>
-<li><code>menu.back(force, update)</code>: will execute menu back command, optional
-  boolean parameters <code>&lt;force&gt;</code> and <code>&lt;update&gt;</code>.<ul>
-<li>When <code>&lt;force&gt;</code> is set True then it will also stop editing. Default
-  value is False.</li>
-<li>When <code>&lt;update&gt;</code> is set False then parent container items are not
-  updated. Default value is True.</li>
-</ul>
-</li>
-<li><code>menu.exit(force)</code> - will execute menu exit command, optional
-  boolean parameter <code>&lt;force&gt;</code> default value False.<ul>
-<li>When <code>&lt;force&gt;</code> is set True then it will also stop editing. Default
-  value is False.</li>
-</ul>
-</li>
-</ul>
-<h2 id="save-variables-to-disk">Save Variables to disk<a class="headerlink" href="#save-variables-to-disk" title="Permanent link">&para;</a></h2>
-<p>If a
-<a href="Config_Reference.html#save_variables">save_variables config section</a>
-has been enabled, <code>SAVE_VARIABLE VARIABLE=&lt;name&gt; VALUE=&lt;value&gt;</code> can be
-used to save the variable to disk so that it can be used across
-restarts. All stored variables are loaded into the
-<code>printer.save_variables.variables</code> dict at startup and can be used in
-gcode macros. to avoid overly long lines you can add the following at
-the top of the macro:</p>
-<div class="highlight"><pre><span></span><code>{% set svv = printer.save_variables.variables %}
-</code></pre></div>
-
-<p>As an example, it could be used to save the state of 2-in-1-out hotend
-and when starting a print ensure that the active extruder is used,
-instead of T0:</p>
-<div class="highlight"><pre><span></span><code>[gcode_macro T1]
-gcode:
-  ACTIVATE_EXTRUDER extruder=extruder1
-  SAVE_VARIABLE VARIABLE=currentextruder VALUE=&#39;&quot;extruder1&quot;&#39;
-
-[gcode_macro T0]
-gcode:
-  ACTIVATE_EXTRUDER extruder=extruder
-  SAVE_VARIABLE VARIABLE=currentextruder VALUE=&#39;&quot;extruder&quot;&#39;
-
-[gcode_macro START_GCODE]
-gcode:
-  {% set svv = printer.save_variables.variables %}
-  ACTIVATE_EXTRUDER extruder={svv.currentextruder}
-</code></pre></div>
+<p>Then click "Save".</p>
+<p><em>In some older setups this address may be <code>/tmp/printer</code></em></p>
+<p>Enter the Settings tab again and under "Serial Connection" change the "Serial Port"
+setting to the one added above.</p>
+<p>In the Settings tab, navigate to the "Behavior" sub-tab and select the
+"Cancel any ongoing prints but stay connected to the printer" option. Click "Save".</p>
+<p>From the main page, under the "Connection" section (at the top left of the page)
+make sure the "Serial Port" is set to the new additional one added
+and click "Connect". (If it is not in the available selection then
+try reloading the page.)</p>
+<p>Once connected, navigate to the "Terminal" tab and type "status" (without the quotes)
+into the command entry box and click "Send". The terminal window will likely report
+there is an error opening the config file - that means OctoPrint is successfully
+communicating with Klipper.</p>
+<p>Please proceed to <a href="Installation.html">Installation.md</a> and the
+<em>Building and flashing the micro-controller</em> section</p>
 
 
 

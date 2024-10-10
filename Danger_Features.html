@@ -574,6 +574,41 @@
   
   
   
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_1" id="__nav_8_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_1">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="Installation.html" class="md-nav__link">
         
@@ -584,6 +619,35 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="OctoPrint.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OctoPrint for Klipper
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1921,6 +1985,7 @@
 </ul>
 <h2 id="additional-configuration-options">Additional configuration options<a class="headerlink" href="#additional-configuration-options" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="Config_Reference.html#mcu"><code>[mcu] is_non_critical</code></a> enables marking of an mcu as optional - it can be freely disconnected and connected at will. (useful for MCU-based accelerometer boards, mcu-based probes that shut down in hot chambers, etc...)</li>
 <li><a href="Config_Reference.html#danger-options"><code>[danger_options]</code></a> - New configuration options to adjust klipper values that were previously hidden</li>
 <li>Additional kinematics versions enabled per-axis acceleration, see <a href="Config_Reference.html#⚠️-cartesian-kinematics-with-limits-for-x-and-y-axes">limited_cartesian</a> and <a href="Config_Reference.html#⚠️-corexy-kinematics-with-limits-for-x-and-y-axes">limited_corexy</a></li>
 <li><code>--rotate-log-at-restart</code> can be added to your klipper start script or service to force log rotation every restart.</li>
@@ -1945,9 +2010,12 @@
 <li><a href="Config_Reference.html#⚠️-z_calibration"><code>[z_calibration]</code></a> enables automatic probe Z offset calibration using a reference endstop like the Voron 2.4 nozzle endstop.</li>
 <li><a href="Config_Reference.html#z_tilt_ng"><code>[z_tilt_ng]</code></a> adds enforced 3-point z tilt calibration</li>
 <li><a href="Config_Reference.html#z_tilt"><code>[z_tilt/quad_gantry_level] increasing_threshold</code></a> allows you to customize the allowed variation when probing multiple times</li>
+<li><a href="Config_Reference.html#z_tilt"><code>[z_tilt/quad_gantry_level] adaptive_horizontal_move_z</code></a> adaptively decrease horizontal_move_z based on resulting error - z_tilt and QGL faster and safer!</li>
+<li><a href="Config_Reference.html#safe_z_home"><code>[safe_z_home] home_y_before_x</code></a> let you home Y before X.</li>
 </ul>
 <h2 id="heaters-fans-and-pid-changes">Heaters, Fans, and PID changes<a class="headerlink" href="#heaters-fans-and-pid-changes" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="MPC.html">Model Predictive Control</a> is an advanced temperature control method that offers an alternative to traditional PID control.</li>
 <li><a href="PID.html">Velocity PID</a> can be more accurate than positional PID, but is more susceptible to noisy sensors and may require larger smoothing times</li>
 <li><a href="G-Codes.html#pid_profile"><code>PID_PROFILE [LOAD/SAVE]</code></a> allows you to calibrate and save PID profiles at multiple temperatures and fan speeds, and later restore them. With some clever macros, automatic per-material pid tuning is within reach!</li>
 <li><a href="G-Codes.html#set_heater_pid"><code>SET_HEATER_PID HEATER= KP= KI= KD=</code></a> can update your PID parameters without a reload.</li>

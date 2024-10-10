@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="Installation.html">
+        <link rel="prev" href="OctoPrint.html">
       
       
         <link rel="next" href="Rotation_Distance.html">
@@ -464,6 +464,41 @@
   
   
   
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_1" id="__nav_8_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_1">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="Installation.html" class="md-nav__link">
         
@@ -474,6 +509,35 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="OctoPrint.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OctoPrint for Klipper
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2033,6 +2097,63 @@
       [belay]
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-cells" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load Cells
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Load Cells">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_cell" class="md-nav__link">
+    <span class="md-ellipsis">
+      [load_cell]
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[load_cell]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hx711" class="md-nav__link">
+    <span class="md-ellipsis">
+      HX711
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hx717" class="md-nav__link">
+    <span class="md-ellipsis">
+      HX717
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ads1220" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADS1220
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -4827,6 +4948,63 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#load-cells" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load Cells
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Load Cells">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_cell" class="md-nav__link">
+    <span class="md-ellipsis">
+      [load_cell]
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[load_cell]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hx711" class="md-nav__link">
+    <span class="md-ellipsis">
+      HX711
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hx717" class="md-nav__link">
+    <span class="md-ellipsis">
+      HX717
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ads1220" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADS1220
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#board-specific-hardware-support" class="md-nav__link">
     <span class="md-ellipsis">
       Board specific hardware support
@@ -5018,6 +5196,10 @@ serial:
 #   sending a Klipper command to the micro-controller so that it can
 #   reset itself. The default is &#39;arduino&#39; if the micro-controller
 #   communicates over a serial port, &#39;command&#39; otherwise.
+#is_non_critical: False
+#   Setting this to True will allow the mcu to be disconnected and
+#   reconnected at will without errors. Helpful for USB-accelerometer boards
+#   and USB-probes
 </code></pre></div>
 
 <h3 id="mcu-my_extra_mcu">[mcu my_extra_mcu]<a class="headerlink" href="#mcu-my_extra_mcu" title="Permanent link">&para;</a></h3>
@@ -5061,8 +5243,16 @@ pins such as "extra_mcu:ar9" may then be used elsewhere in the config
 #   This allows to set extra flush time (in seconds). Under certain conditions,
 #   a low value will result in an error if message is not get flushed, a high value
 #   (0.250) will result in homing/probing latency. The default is 0.250
+#homing_start_delay: 0.001
+#   How long to dwell before beginning a drip move for homing
+#endstop_sample_time: 0.000015
+#   How often the MCU should sample the endstop state
+#endstop_sample_count: 4
+#   How many times we should check the endstop state when homing
+#   Unless your endstop is noisy and unreliable, you should be able to lower this to 1
 
-# Logging options
+
+# Logging options:
 
 #minimal_logging: False
 #   Set all log parameters log options to False. The default is False.
@@ -5812,7 +6002,8 @@ max_accel: 1
 nozzle hotend along with the stepper controlling the extruder. See the
 <a href="G-Codes.html#extruder">command reference</a> for additional information.
 See the <a href="Pressure_Advance.html">pressure advance guide</a> for information
-on tuning pressure advance.</p>
+on tuning pressure advance. See <a href="PID.html">PID</a> or <a href="MPC.html">MPC</a> for more
+detailed information about the control methods.</p>
 <div class="highlight"><pre><span></span><code>[extruder]
 step_pin:
 dir_pin:
@@ -5897,12 +6088,14 @@ sensor_pin:
 #   be smoothed to reduce the impact of measurement noise. The default
 #   is 1 seconds.
 control:
-#   Control algorithm (either pid, pid_v or watermark). This parameter must
+#   Control algorithm (either pid, pid_v, watermark or mpc). This parameter must
 #   be provided. pid_v should only be used on well calibrated heaters with
 #   low to moderate noise.
-pid_Kp:
-pid_Ki:
-pid_Kd:
+#
+#   If control: pid or pid_v
+#pid_Kp:
+#pid_Ki:
+#pid_Kd:
 #   The proportional (pid_Kp), integral (pid_Ki), and derivative
 #   (pid_Kd) settings for the PID feedback control system. Klipper
 #   evaluates the PID settings with the following general formula:
@@ -5912,11 +6105,23 @@ pid_Kd:
 #   off and 1.0 being full on. Consider using the PID_CALIBRATE
 #   command to obtain these parameters. The pid_Kp, pid_Ki, and pid_Kd
 #   parameters must be provided for PID heaters.
+#
+#   If control: watermark
 #max_delta: 2.0
 #   On &#39;watermark&#39; controlled heaters this is the number of degrees in
 #   Celsius above the target temperature before disabling the heater
 #   as well as the number of degrees below the target before
 #   re-enabling the heater. The default is 2 degrees Celsius.
+#
+#   If control: mpc
+#   See MPC.md for details about these parameters.
+#heater_power:
+#cooling_fan:
+#ambient_temp_sensor:
+#filament_diameter: 1.75
+#filament_density: 1.2
+#filament_heat_capacity: 1.8
+#
 #pwm_cycle_time: 0.100
 #   Time in seconds for each software PWM cycle of the heater. It is
 #   not recommended to set this unless there is an electrical
@@ -6212,6 +6417,15 @@ extended <a href="G-Codes.html#z_tilt">G-Code command</a> becomes available.</p>
 #horizontal_move_z: 5
 #   The height (in mm) that the head should be commanded to move to
 #   just prior to starting a probe operation. The default is 5.
+#min_horizontal_move_z: 1.0
+#   minimum value for horizontal move z
+#   (only used when adaptive_horizontal_move_z is True)
+#adaptive_horizontal_move_z: False
+#   if we should adjust horizontal move z after the first adjustment round,
+#   based on error.
+#   when set to True, initial horizontal_move_z is the config value,
+#   subsequent iterations will set horizontal_move_z to
+#   the ceil of error, or min_horizontal_move_z - whichever is greater.
 #retries: 0
 #   Number of times to retry if the probed points aren&#39;t within
 #   tolerance.
@@ -6244,6 +6458,10 @@ extended <a href="G-Codes.html#z_tilt">G-Code command</a> becomes available.</p>
 #speed: 50
 # See [z_tilt]
 #horizontal_move_z: 5
+# See [z_tilt]
+#min_horizontal_move_z: 1.0
+# See [z_tilt]
+#adaptive_horizontal_move_z: False
 # See [z_tilt]
 #retries: 0
 # See [z_tilt]
@@ -6314,6 +6532,15 @@ configuration:</p>
 #horizontal_move_z: 5
 #   The height (in mm) that the head should be commanded to move to
 #   just prior to starting a probe operation. The default is 5.
+#min_horizontal_move_z: 1.0
+#   minimum value for horizontal move z
+#   (only used when adaptive_horizontal_move_z is True)
+#adaptive_horizontal_move_z: False
+#   if we should adjust horizontal move z after the first adjustment round,
+#   based on error.
+#   when set to True, initial horizontal_move_z is the config value,
+#   subsequent iterations will set horizontal_move_z to
+#   the ceil of error, or min_horizontal_move_z - whichever is greater.
 #max_adjust: 4
 #   Safety limit if an adjustment greater than this value is requested
 #   quad_gantry_level will abort.
@@ -6398,6 +6625,8 @@ home_xy_position:
 #move_to_previous: False
 #   When set to True, the X and Y axes are reset to their previous
 #   positions after Z axis homing. The default is False.
+#home_y_before_x: False
+#  # If True, the Y axis will home first. The default is False.
 </code></pre></div>
 
 <h3 id="homing_override">[homing_override]<a class="headerlink" href="#homing_override" title="Permanent link">&para;</a></h3>
@@ -9684,6 +9913,9 @@ extruder_stepper_name:
 #   example, if the config section for the secondary extruder is
 #   [extruder_stepper my_extruder_stepper], this parameter&#39;s value
 #   would be &#39;my_extruder_stepper&#39;.
+sensor_pin:
+#   Input pin connected to the sensor. This parameter must be
+#   provided.
 #multiplier_high: 1.05
 #   High multiplier to set for the secondary extruder when extruding
 #   forward and Belay is compressed or when extruding backward and
@@ -9700,6 +9932,90 @@ extruder_stepper_name:
 #   but with an additional message whenever the multiplier is set in
 #   response to detecting an extrusion direction change. The default
 #   is 0.
+</code></pre></div>
+
+<h2 id="load-cells">Load Cells<a class="headerlink" href="#load-cells" title="Permanent link">&para;</a></h2>
+<h3 id="load_cell">[load_cell]<a class="headerlink" href="#load_cell" title="Permanent link">&para;</a></h3>
+<p>Load Cell. Uses an ADC sensor attached to a load cell to create a digital
+scale.</p>
+<div class="highlight"><pre><span></span><code>[load_cell]
+sensor_type:
+#   This must be one of the supported sensor types, see below.
+</code></pre></div>
+
+<h4 id="hx711">HX711<a class="headerlink" href="#hx711" title="Permanent link">&para;</a></h4>
+<p>Has conversation started by @naikymen. Original line has conversation started by @naikymen.
+This is a 24 bit low sample rate chip using "bit-bang" communications. It is
+suitable for filament scales.</p>
+<div class="highlight"><pre><span></span><code>[load_cell]
+sensor_type: hx711
+sclk_pin:
+#   The pin connected to the HX711 clock line. This parameter must be provided.
+dout_pin:
+#   The pin connected to the HX711 data output line. This parameter must be
+#   provided.
+#gain: A-128
+#   Valid values for gain are: A-128, A-64, B-32. The default is A-128.
+#   &#39;A&#39; denotes the input channel and the number denotes the gain. Only the 3
+#   listed combinations are supported by the chip. Note that changing the gain
+#   setting also selects the channel being read.
+#sample_rate: 80
+#   Valid values for sample_rate are 80 or 10. The default value is 80.
+#   This must match the wiring of the chip. The sample rate cannot be changed
+#   in software.
+</code></pre></div>
+
+<h4 id="hx717">HX717<a class="headerlink" href="#hx717" title="Permanent link">&para;</a></h4>
+<p>This is the 4x higher sample rate version of the HX711, suitable for probing.</p>
+<div class="highlight"><pre><span></span><code>[load_cell]
+sensor_type: hx717
+sclk_pin:
+#   The pin connected to the HX717 clock line. This parameter must be provided.
+dout_pin:
+#   The pin connected to the HX717 data output line. This parameter must be
+#   provided.
+#gain: A-128
+#   Valid values for gain are A-128, B-64, A-64, B-8.
+#   &#39;A&#39; denotes the input channel and the number denotes the gain setting.
+#   Only the 4 listed combinations are supported by the chip. Note that
+#   changing the gain setting also selects the channel being read.
+#sample_rate: 320
+#   Valid values for sample_rate are: 10, 20, 80, 320. The default is 320.
+#   This must match the wiring of the chip. The sample rate cannot be changed
+#   in software.
+</code></pre></div>
+
+<h4 id="ads1220">ADS1220<a class="headerlink" href="#ads1220" title="Permanent link">&para;</a></h4>
+<p>The ADS1220 is a 24 bit ADC supporting up to a 2Khz sample rate configurable in
+software.</p>
+<div class="highlight"><pre><span></span><code>[load_cell]
+sensor_type: ads1220
+cs_pin:
+#   The pin connected to the ADS1220 chip select line. This parameter must
+#   be provided.
+#spi_speed: 512000
+#   This chip supports 2 speeds: 256000 or 512000. The faster speed is only
+#   enabled when one of the Turbo sample rates is used. The correct spi_speed
+#   is selected based on the sample rate.
+#spi_bus:
+#spi_software_sclk_pin:
+#spi_software_mosi_pin:
+#spi_software_miso_pin:
+#   See the &quot;common SPI settings&quot; section for a description of the
+#   above parameters.
+data_ready_pin:
+#   Pin connected to the ADS1220 data ready line. This parameter must be
+#   provided.
+#gain: 128
+#   Valid gain values are 128, 64, 32, 16, 8, 4, 2, 1
+#   The default is 128
+#sample_rate: 660
+#   This chip supports two ranges of sample rates, Normal and Turbo. In turbo
+#   mode the chips c internal clock runs twice as fast and the SPI communication
+#   speed is also doubled.
+#   Normal sample rates: 20, 45, 90, 175, 330, 600, 1000
+#   Turbo sample rates: 40, 90, 180, 350, 660, 1200, 2000
+#   The default is 660
 </code></pre></div>
 
 <h2 id="board-specific-hardware-support">Board specific hardware support<a class="headerlink" href="#board-specific-hardware-support" title="Permanent link">&para;</a></h2>
