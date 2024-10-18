@@ -265,7 +265,7 @@ FieldFormatters.update(
 
 KIFS = [11750.0, 24000.0, 36000.0, 36000.0]
 GLOBALSCALER_ERROR = (
-    "[%s %s]\n"
+    "[tmc2240 %s]\n"
     "GLOBALSCALER(%d) calculation out of bounds.\n"
     "The target current can't be achieved with the given RREF(%f) "
     "and CS(%d). Please adjust your configuration.\n"
@@ -347,7 +347,6 @@ class TMC2240CurrentHelper(tmc.BaseTMCCurrentHelper):
             self.printer.invoke_shutdown(
                 GLOBALSCALER_ERROR
                 % (
-                    "tmc2240",
                     self.name,
                     globalscaler,
                     self.Rref,
