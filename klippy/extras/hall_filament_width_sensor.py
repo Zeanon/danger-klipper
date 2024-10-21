@@ -13,6 +13,7 @@ ADC_SAMPLE_COUNT = 15
 class HallFilamentWidthSensor:
     def __init__(self, config):
         self.printer = config.get_printer()
+        gcode_macro = self.printer.load_object(config, "gcode_macro")
         self.reactor = self.printer.get_reactor()
         self.estimated_print_time = None
         self.pin1 = config.get("adc1")
@@ -76,6 +77,14 @@ class HallFilamentWidthSensor:
 
         self.runout_helper = filament_switch_sensor.RunoutHelper(
             config, self, runout_distance
+        )
+        if config.get("immediate_runout_gcode", None) is not None:
+            self.runout_helper.immediate_runout_gcode = (
+                gcode_macro.load_template(config, "immediate_runout_gcode", "")
+            )
+
+        self.printer.register_event_handler(
+            "idle_timeout:printing", self._handle_printing
         )
 
     # Initialization
