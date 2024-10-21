@@ -84,6 +84,10 @@ class HallFilamentWidthSensor:
             )
 
         self.printer.register_event_handler(
+            "print_stats:start_printing", self._handle_printing_smart
+        )
+
+        self.printer.register_event_handler(
             "idle_timeout:printing", self._handle_printing
         )
 
@@ -99,9 +103,25 @@ class HallFilamentWidthSensor:
         # Start extrude factor update timer
         self.reactor.update_timer(self.extrude_factor_update_timer, self.reactor.NOW)
 
-    def _handle_printing(self, print_time):
-        if self.check_on_print_start:
-            self.runout_helper.note_filament_present(None, True, True)
+    def _handle_printing(self, *args):
+        if not self.runout_helper.smart:
+            if self.check_on_print_start:
+                self.reset()
+                self.runout_helper.note_filament_present(
+                    self.runout_dia_min <= self.diameter <= self.runout_dia_max,
+                    True,
+                    True,
+                )
+
+    def _handle_printing_smart(self, *args):
+        if self.runout_helper.smart:
+            if self.check_on_print_start:
+                self.reset()
+                self.runout_helper.note_filament_present(
+                    self.runout_dia_min <= self.diameter <= self.runout_dia_max,
+                    True,
+                    True,
+                )
 
     def get_extruder_pos(self, eventtime=None):
         if eventtime is None:
