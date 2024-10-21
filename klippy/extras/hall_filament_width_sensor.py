@@ -85,7 +85,7 @@ class HallFilamentWidthSensor:
             "DISABLE_FILAMENT_WIDTH_LOG", self.cmd_log_disable
         )
 
-        self.runout_helper = filament_switch_sensor.RunoutHelper(config)
+        self.runout_helper = filament_switch_sensor.RunoutHelper(config, self)
 
     # Initialization
     def handle_ready(self):
