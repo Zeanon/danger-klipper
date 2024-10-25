@@ -329,6 +329,7 @@ max_z_accel:
 # The stepper_z section is used to describe the stepper controlling
 # the Z axis in a cartesian robot.
 [stepper_z]
+#homing_retract_dist: 5.0 by default, if you are using beacon (the beacon module is installed and probe:z_virtual_endstop is used)
 ```
 
 ### ⚠️ Cartesian Kinematics with limits for X and Y axes
