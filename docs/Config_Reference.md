@@ -2018,6 +2018,10 @@ cs_pin:
 #   not recommended to change this rate from the default 3200, and
 #   rates below 800 will considerably affect the quality of resonance
 #   measurements.
+#disable_heaters:
+#   A list of heaters to disable when this adxl is connected.
+#   Useful for Nozzle-ADXL to automatically disable the hotend so you don't
+#   fry them.
 ```
 
 ### [lis2dw]

@@ -61,6 +61,7 @@ class Heater:
             self.printer.get_start_args().get("debugoutput") is not None
         )
         self.can_extrude = self.min_extrude_temp <= 0.0 or is_fileoutput
+        self.enabled = True
         self.max_power = config.getfloat(
             "max_power", 1.0, above=0.0, maxval=1.0
         )
@@ -129,6 +130,12 @@ class Heater:
         self.printer.register_event_handler(
             "klippy:shutdown", self._handle_shutdown
         )
+
+    def notify_disabled(self):
+        raise self.printer.command_error(
+                "Heater [%s] is disabled due to an "
+                "accelerometer being connected." % self.short_name
+            )
 
     def lookup_control(self, profile, load_clean=False):
         algos = collections.OrderedDict(
@@ -260,6 +267,9 @@ class Heater:
         if control_stats is not None:
             ret["control_stats"] = control_stats
         return ret
+
+    def set_enabled(self, enabled):
+        self.enabled = enabled
 
     def is_adc_faulty(self):
         if self.last_temp > self.max_temp or self.last_temp < self.min_temp:
@@ -1102,6 +1112,9 @@ class PrinterHeaters:
         self.printer.wait_while(check)
 
     def set_temperature(self, heater, temp, wait=False):
+        if not heater.enabled:
+            heater.notify_disabled()
+            return
         toolhead = self.printer.lookup_object("toolhead")
         toolhead.register_lookahead_callback((lambda pt: None))
         heater.set_temp(temp)
