@@ -2018,7 +2018,7 @@ cs_pin:
 #   not recommended to change this rate from the default 3200, and
 #   rates below 800 will considerably affect the quality of resonance
 #   measurements.
-#disable_heaters:
+#disabled_heaters:
 #   A list of heaters to disable when this adxl is connected.
 #   Useful for Nozzle-ADXL to automatically disable the hotend so you don't
 #   fry them.
@@ -2043,6 +2043,8 @@ cs_pin:
 #   above parameters.
 #axes_map: x, y, z
 #   See the "adxl345" section for information on this parameter.
+#disabled_heaters:
+#   See the "adxl345" section for information on this parameter.
 ```
 
 ### [mpu9250]
@@ -2063,6 +2065,8 @@ accelerometers (one may define any number of sections with an
 #   See the "common I2C settings" section for a description of the
 #   above parameters. The default "i2c_speed" is 400000.
 #axes_map: x, y, z
+#   See the "adxl345" section for information on this parameter.
+#disabled_heaters:
 #   See the "adxl345" section for information on this parameter.
 ```
 
