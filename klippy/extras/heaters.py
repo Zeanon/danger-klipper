@@ -133,9 +133,9 @@ class Heater:
 
     def notify_disabled(self):
         raise self.printer.command_error(
-                "Heater [%s] is disabled due to an "
-                "accelerometer being connected." % self.short_name
-            )
+            "Heater [%s] is disabled due to an "
+            "accelerometer being connected." % self.short_name
+        )
 
     def lookup_control(self, profile, load_clean=False):
         algos = collections.OrderedDict(
