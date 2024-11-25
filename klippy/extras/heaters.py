@@ -1077,7 +1077,7 @@ class PrinterHeaters:
             if not mcu_name.startswith("mcu"):
                 mcu_name = "mcu " + mcu_name
             mcu_object = self.printer.lookup_object(mcu_name, None)
-            if not mcu_object.non_critical_disconnected:
+            if mcu_object is not None and not mcu_object.non_critical_disconnected:
                 heater.notify_disabled(mcu_name)
                 return
         toolhead = self.printer.lookup_object("toolhead")
