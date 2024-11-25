@@ -1091,7 +1091,9 @@ per_move_pressure_advance: False
 #   If true, uses pressure advance constant from trapq when processing moves
 #   This causes changes to pressure advance be taken into account immediately,
 #   for all moves in the current queue, rather than ~250ms later once the queue gets flushed
-
+#disable_if_connected:
+#   List of mcus that should disable the heater if connected, usefull for nozzle adxls
+#   as to not accidentally fry them due to heating the hotend.
 ```
 
 ### [heater_bed]
@@ -1107,6 +1109,7 @@ sensor_pin:
 control:
 min_temp:
 max_temp:
+disable_if_connected:
 #   See the "extruder" section for a description of the above parameters.
 ```
 
@@ -2018,10 +2021,6 @@ cs_pin:
 #   not recommended to change this rate from the default 3200, and
 #   rates below 800 will considerably affect the quality of resonance
 #   measurements.
-#disable_heaters:
-#   A list of heaters to disable when this adxl is connected.
-#   Useful for Nozzle-ADXL to automatically disable the hotend so you don't
-#   fry them.
 ```
 
 ### [lis2dw]
@@ -2043,8 +2042,6 @@ cs_pin:
 #   above parameters.
 #axes_map: x, y, z
 #   See the "adxl345" section for information on this parameter.
-#disable_heaters:
-#   See the "adxl345" section for information on this parameter.
 ```
 
 ### [mpu9250]
@@ -2065,8 +2062,6 @@ accelerometers (one may define any number of sections with an
 #   See the "common I2C settings" section for a description of the
 #   above parameters. The default "i2c_speed" is 400000.
 #axes_map: x, y, z
-#   See the "adxl345" section for information on this parameter.
-#disable_heaters:
 #   See the "adxl345" section for information on this parameter.
 ```
 
@@ -2928,6 +2923,7 @@ target temperature.
 #pwm_cycle_time:
 #min_temp:
 #max_temp:
+#disable_if_connected:
 #   See the "extruder" section for the definition of the above
 #   parameters.
 ```
