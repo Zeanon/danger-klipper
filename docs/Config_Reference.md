@@ -1092,7 +1092,7 @@ per_move_pressure_advance: False
 #   This causes changes to pressure advance be taken into account immediately,
 #   for all moves in the current queue, rather than ~250ms later once the queue gets flushed
 #disable_if_connected:
-#   List of mcus that should disable the heater if connected, usefull for nozzle adxls
+#   List of mcus that should disable the heater if connected, useful for nozzle adxls
 #   as to not accidentally fry them due to heating the hotend.
 ```
 

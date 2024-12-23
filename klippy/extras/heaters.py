@@ -62,10 +62,9 @@ class Heater:
         )
         self.can_extrude = self.min_extrude_temp <= 0.0 or is_fileoutput
         self.disable_if_connected = []
-        if hasattr(config, "getlist"):
-            self.disable_if_connected = config.getlist(
-                "disable_if_connected", self.disable_if_connected
-            )
+        self.disable_if_connected = config.getlist(
+            "disable_if_connected", self.disable_if_connected
+        )
         self.max_power = config.getfloat(
             "max_power", 1.0, above=0.0, maxval=1.0
         )
